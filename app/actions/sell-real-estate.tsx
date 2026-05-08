@@ -2,11 +2,12 @@ import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+
+import { FormScroll } from "@/components/form-scroll";
 
 import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
@@ -52,7 +53,7 @@ export default function SellRealEstateScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <FormScroll>
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Какой объект продать</ThemedText>
         {slot.player.realEstate.map((r) => (
@@ -100,12 +101,11 @@ export default function SellRealEstateScreen() {
           Продать
         </ThemedText>
       </TouchableOpacity>
-    </ScrollView>
+    </FormScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 16, gap: 16 },
   card: {
     padding: 16,
     borderRadius: 12,

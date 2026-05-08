@@ -1,13 +1,8 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
+import { FormScroll } from "@/components/form-scroll";
 import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -60,7 +55,7 @@ export default function BuyStockScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <FormScroll>
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Тикер</ThemedText>
         <View style={styles.tickerRow}>
@@ -133,12 +128,11 @@ export default function BuyStockScreen() {
           Купить
         </ThemedText>
       </TouchableOpacity>
-    </ScrollView>
+    </FormScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 16, gap: 16 },
   card: {
     padding: 16,
     borderRadius: 12,

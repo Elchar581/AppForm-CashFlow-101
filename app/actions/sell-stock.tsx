@@ -2,11 +2,12 @@ import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+
+import { FormScroll } from "@/components/form-scroll";
 
 import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
@@ -67,7 +68,7 @@ export default function SellStockScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <FormScroll>
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Какую позицию продать</ThemedText>
         {slot.player.stocks.map((s) => {
@@ -141,12 +142,11 @@ export default function SellStockScreen() {
           Продать
         </ThemedText>
       </TouchableOpacity>
-    </ScrollView>
+    </FormScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 16, gap: 16 },
   card: {
     padding: 16,
     borderRadius: 12,
