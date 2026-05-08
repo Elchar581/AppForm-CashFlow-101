@@ -79,6 +79,26 @@ export function fastTrackInitialPassive(passiveAtExit: number): number {
   );
 }
 
+export function fastTrackBusinessCashflow(p: PlayerState): number {
+  if (!p.fastTrack) return 0;
+  return p.fastTrack.holdings.reduce((s, h) => s + h.monthlyCashflow, 0);
+}
+
+/** Полный месячный поток на Большом круге. */
+export function fastTrackMonthlyCashflow(p: PlayerState): number {
+  if (!p.fastTrack) return 0;
+  return p.fastTrack.initialPassiveIncome + fastTrackBusinessCashflow(p);
+}
+
+/** Победа на Большом круге: либо +winCashflowDelta к потоку, либо мечта. */
+export function fastTrackHasWon(p: PlayerState): boolean {
+  if (!p.fastTrack) return false;
+  return (
+    p.fastTrack.cashflowDeltaSinceStart >= RULES.fastTrack.winCashflowDelta ||
+    p.fastTrack.dreamBought
+  );
+}
+
 // ───────── единая «сводка» для UI ─────────
 
 export type PlayerSummary = {

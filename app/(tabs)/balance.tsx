@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { getProfession } from "@/lib/calculations";
-import { STOCK_BY_ID } from "@/lib/configs";
+import { FAST_TRACK_BY_ID, STOCK_BY_ID } from "@/lib/configs";
 import { useActiveProfile } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -139,6 +139,25 @@ export default function BalanceScreen() {
                 value={b.price}
               />
             ))}
+          </View>
+        )}
+
+        {p.fastTrack && p.fastTrack.holdings.length > 0 && (
+          <View style={styles.section}>
+            <ThemedText style={styles.sectionTitle}>
+              Бизнесы Большого круга
+            </ThemedText>
+            {p.fastTrack.holdings.map((h) => {
+              const tpl = FAST_TRACK_BY_ID[h.businessId];
+              const name = tpl?.name ?? h.businessId;
+              return (
+                <Row
+                  key={h.id}
+                  label={`${name} · ${h.monthlyCashflow > 0 ? `+${fmt(h.monthlyCashflow)}/мес` : "разово"}`}
+                  value={tpl?.downPayment ?? 0}
+                />
+              );
+            })}
           </View>
         )}
 

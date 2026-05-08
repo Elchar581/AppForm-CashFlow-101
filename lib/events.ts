@@ -1,11 +1,24 @@
-import { RULES } from "./configs";
+import { FAST_TRACK_BY_ID, RULES, STOCK_BY_ID } from "./configs";
 import type {
+  FastTrackHolding,
   GameEvent,
   OwnedBusiness,
   OwnedRealEstate,
   OwnedStock,
   PlayerState,
 } from "./types";
+
+// Локальный пересчёт пассивного дохода — чтобы не создавать импорт из calculations.ts
+function passiveAt(p: PlayerState): number {
+  let total = 0;
+  for (const s of p.stocks) {
+    const tpl = STOCK_BY_ID[s.templateId];
+    total += (tpl?.dividendPerShare ?? 0) * s.shares;
+  }
+  for (const r of p.realEstate) total += r.monthlyCashflow;
+  for (const b of p.businesses) total += b.monthlyCashflow;
+  return total;
+}
 
 function makeId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -243,6 +256,65 @@ export function buyBusiness(
       kind: "buyBusiness",
       ts: Date.now(),
       assetId: asset.id,
+    }),
+  };
+}
+
+// ───────── Большой круг ─────────
+
+export function exitRatRace(p: PlayerState): PlayerState {
+  if (p.phase === "fastTrack") return p;
+  const passive = passiveAt(p);
+  const initialPassive =
+    Math.round(passive / 1000) * 1000 * RULES.fastTrack.passiveIncomeMultiplier;
+  return {
+    ...p,
+    phase: "fastTrack",
+    fastTrack: {
+      initialPassiveIncome: initialPassive,
+      holdings: [],
+      cashflowDeltaSinceStart: 0,
+      dreamBought: false,
+    },
+    history: withEvent(p, {
+      kind: "exitRatRace",
+      ts: Date.now(),
+      passiveIncome: passive,
+    }),
+  };
+}
+
+export function buyFastTrackBusiness(
+  p: PlayerState,
+  businessId: string,
+): PlayerState {
+  if (p.phase !== "fastTrack" || !p.fastTrack) return p;
+  const biz = FAST_TRACK_BY_ID[businessId];
+  if (!biz) return p;
+  if (biz.downPayment > p.cash) return p;
+
+  const isOneTime = biz.kind === "oneTime";
+  const recurring = isOneTime ? 0 : biz.amount;
+  const oneTimePayout = isOneTime ? biz.amount : 0;
+  const holding: FastTrackHolding = {
+    id: makeId(),
+    businessId,
+    monthlyCashflow: recurring,
+  };
+
+  return {
+    ...p,
+    cash: p.cash - biz.downPayment + oneTimePayout,
+    fastTrack: {
+      ...p.fastTrack,
+      holdings: [...p.fastTrack.holdings, holding],
+      cashflowDeltaSinceStart: p.fastTrack.cashflowDeltaSinceStart + recurring,
+    },
+    history: withEvent(p, {
+      kind: "fastTrackBuy",
+      ts: Date.now(),
+      businessId,
+      oneTimePayout: isOneTime ? biz.amount : undefined,
     }),
   };
 }

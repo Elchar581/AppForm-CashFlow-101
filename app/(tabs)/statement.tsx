@@ -6,10 +6,14 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
   businessCashflow,
+  fastTrackBusinessCashflow,
+  fastTrackHasWon,
+  fastTrackMonthlyCashflow,
   realEstateCashflow,
   stocksDividends,
   summarizePlayer,
 } from "@/lib/calculations";
+import { FAST_TRACK_BY_ID, RULES } from "@/lib/configs";
 import { useActiveProfile } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -27,14 +31,14 @@ function Row({
   muted?: boolean;
 }) {
   const display = typeof value === "number" ? fmt(value) : value;
-  const textType = bold ? "defaultSemiBold" : "default";
-  const textStyle = muted ? styles.muted : undefined;
+  const t = bold ? "defaultSemiBold" : "default";
+  const s = muted ? styles.muted : undefined;
   return (
     <View style={styles.row}>
-      <ThemedText type={textType} style={textStyle}>
+      <ThemedText type={t} style={[s, { flex: 1 }]} numberOfLines={2}>
         {label}
       </ThemedText>
-      <ThemedText type={textType} style={textStyle}>
+      <ThemedText type={t} style={s}>
         {display}
       </ThemedText>
     </View>
@@ -51,6 +55,15 @@ export default function StatementScreen() {
   if (!slot) return null;
 
   const player = slot.player;
+
+  if (player.phase === "fastTrack") return <FastTrackView />;
+  return <RatRaceView />;
+}
+
+function RatRaceView() {
+  const slot = useActiveProfile();
+  if (!slot) return null;
+  const player = slot.player;
   const s = summarizePlayer(player);
   const e = s.profession.expenses;
   const dividends = stocksDividends(player);
@@ -61,7 +74,9 @@ export default function StatementScreen() {
     <ScrollView contentContainerStyle={styles.content}>
       <ThemedView style={styles.headline}>
         <ThemedText type="title">{player.playerName}</ThemedText>
-        <ThemedText style={styles.muted}>{s.profession.name}</ThemedText>
+        <ThemedText style={styles.muted}>
+          {s.profession.name} · Крысиные гонки
+        </ThemedText>
         <View style={styles.cashflowBig}>
           <ThemedText style={styles.muted}>Месячный денежный поток</ThemedText>
           <ThemedText
@@ -103,9 +118,7 @@ export default function StatementScreen() {
         <Row label="Общий расход" value={s.totalExpenses} bold />
       </ThemedView>
 
-      <ThemedView
-        style={[styles.card, s.canExitRatRace && styles.cardWin]}
-      >
+      <ThemedView style={[styles.card, s.canExitRatRace && styles.cardWin]}>
         <ThemedText type="subtitle">
           {s.canExitRatRace ? "Выход доступен!" : "Условие выхода"}
         </ThemedText>
@@ -114,8 +127,95 @@ export default function StatementScreen() {
         <View style={styles.divider} />
         <ThemedText style={styles.muted}>
           {s.canExitRatRace
-            ? "Пассивный доход покрывает все расходы — можно выйти из крысиных гонок."
+            ? "Пассивный доход покрывает все расходы — кнопка «Выйти из крысиных гонок» доступна на вкладке Действия."
             : `До выхода не хватает $${(s.totalExpenses - s.passiveIncome).toLocaleString("ru-RU")} пассивного дохода в месяц.`}
+        </ThemedText>
+      </ThemedView>
+    </ScrollView>
+  );
+}
+
+function FastTrackView() {
+  const slot = useActiveProfile();
+  if (!slot) return null;
+  const player = slot.player;
+  const ft = player.fastTrack;
+  if (!ft) return null;
+
+  const recurring = fastTrackBusinessCashflow(player);
+  const total = fastTrackMonthlyCashflow(player);
+  const won = fastTrackHasWon(player);
+  const remaining = Math.max(
+    0,
+    RULES.fastTrack.winCashflowDelta - ft.cashflowDeltaSinceStart,
+  );
+
+  return (
+    <ScrollView contentContainerStyle={styles.content}>
+      <ThemedView style={styles.headline}>
+        <ThemedText type="title">{player.playerName}</ThemedText>
+        <ThemedText style={styles.muted}>Большой круг</ThemedText>
+        <View style={styles.cashflowBig}>
+          <ThemedText style={styles.muted}>Месячный поток</ThemedText>
+          <ThemedText type="title" style={{ color: "#2e7d32" }}>
+            +{fmt(total)}
+          </ThemedText>
+        </View>
+      </ThemedView>
+
+      <ThemedView style={styles.card}>
+        <ThemedText type="subtitle">Доходы Большого круга</ThemedText>
+        <Row
+          label="Начальный пассивный доход (×100)"
+          value={ft.initialPassiveIncome}
+        />
+        <Row label="Прибыль ВТ-бизнесов" value={recurring} />
+        <View style={styles.divider} />
+        <Row label="Итого" value={total} bold />
+      </ThemedView>
+
+      <ThemedView style={styles.card}>
+        <ThemedText type="subtitle">Купленные ВТ-бизнесы</ThemedText>
+        {ft.holdings.length === 0 ? (
+          <ThemedText style={styles.muted}>
+            Пока не куплено. Покупайте на вкладке Действия.
+          </ThemedText>
+        ) : (
+          ft.holdings.map((h) => {
+            const tpl = FAST_TRACK_BY_ID[h.businessId];
+            const name = tpl?.name ?? h.businessId;
+            return (
+              <Row
+                key={h.id}
+                label={name}
+                value={
+                  h.monthlyCashflow > 0
+                    ? `+${fmt(h.monthlyCashflow)}/мес`
+                    : "разово"
+                }
+              />
+            );
+          })
+        )}
+      </ThemedView>
+
+      <ThemedView style={[styles.card, won && styles.cardWin]}>
+        <ThemedText type="subtitle">
+          {won ? "🏆 Победа!" : "Условие победы"}
+        </ThemedText>
+        <Row
+          label="Прибавка к потоку с момента выхода"
+          value={ft.cashflowDeltaSinceStart}
+        />
+        <Row
+          label="Цель"
+          value={RULES.fastTrack.winCashflowDelta}
+        />
+        <View style={styles.divider} />
+        <ThemedText style={styles.muted}>
+          {won
+            ? "Поток вырос на нужную величину. Можно либо праздновать, либо продолжать наращивать."
+            : `Осталось +${fmt(remaining)}/мес — покупайте ВТ-бизнесы. Альтернативно — купить «мечту».`}
         </ThemedText>
       </ThemedView>
     </ScrollView>
@@ -133,8 +233,13 @@ const styles = StyleSheet.create({
     borderColor: "rgba(127,127,127,0.4)",
     gap: 8,
   },
-  cardWin: { borderColor: "#2e7d32", borderWidth: 1.5 },
-  row: { flexDirection: "row", justifyContent: "space-between" },
+  cardWin: { borderColor: "#bf8f00", borderWidth: 1.5 },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+  },
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: "rgba(127,127,127,0.3)",

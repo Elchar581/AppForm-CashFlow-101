@@ -46,6 +46,10 @@ export default function RootLayout() {
           name="actions/doodad"
           options={{ title: "Мелкая трата (Doodad)" }}
         />
+        <Stack.Screen
+          name="actions/fast-track-buy"
+          options={{ title: "Купить бизнес · Большой круг" }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

@@ -10,9 +10,16 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { getProfession, monthlyCashflow } from "@/lib/calculations";
+import {
+  canExitRatRace,
+  fastTrackHasWon,
+  fastTrackMonthlyCashflow,
+  getProfession,
+  monthlyCashflow,
+  passiveIncome,
+} from "@/lib/calculations";
 import { RULES } from "@/lib/configs";
-import { addChild, payday } from "@/lib/events";
+import { addChild, exitRatRace, payday } from "@/lib/events";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -65,12 +72,19 @@ export default function ActionsScreen() {
   if (!slot) return null;
   const p = slot.player;
   const prof = getProfession(p.professionId);
-  const cf = monthlyCashflow(p, prof);
+  const isFT = p.phase === "fastTrack";
+  const cf = isFT ? fastTrackMonthlyCashflow(p) : monthlyCashflow(p, prof);
+  const canExit = !isFT && canExitRatRace(p, prof);
+  const won = isFT && fastTrackHasWon(p);
 
   const onPayday = () => {
-    updatePlayer(slot.id, (s) =>
-      payday(s, monthlyCashflow(s, getProfession(s.professionId))),
-    );
+    updatePlayer(slot.id, (s) => {
+      const cashflow =
+        s.phase === "fastTrack"
+          ? fastTrackMonthlyCashflow(s)
+          : monthlyCashflow(s, getProfession(s.professionId));
+      return payday(s, cashflow);
+    });
   };
 
   const onAddChild = () => {
@@ -85,6 +99,23 @@ export default function ActionsScreen() {
         onPress: () => updatePlayer(slot.id, (s) => addChild(s)),
       },
     ]);
+  };
+
+  const onExit = () => {
+    const passive = passiveIncome(p);
+    const initial =
+      Math.round(passive / 1000) * 1000 * RULES.fastTrack.passiveIncomeMultiplier;
+    Alert.alert(
+      "Выход из крысиных гонок",
+      `Поздравляем! Пассивный доход ${fmt(passive)} превысил расходы.\n\nНа Большом круге начальный пассивный доход = ${fmt(initial)} (округление до ${fmt(1000)} × ${RULES.fastTrack.passiveIncomeMultiplier}).\n\nПерейти?`,
+      [
+        { text: "Отмена", style: "cancel" },
+        {
+          text: "Перейти",
+          onPress: () => updatePlayer(slot.id, (s) => exitRatRace(s)),
+        },
+      ],
+    );
   };
 
   const onReset = () => {
@@ -110,7 +141,9 @@ export default function ActionsScreen() {
           <ThemedText type="defaultSemiBold">{fmt(p.cash)}</ThemedText>
         </View>
         <View style={styles.summaryRow}>
-          <ThemedText style={styles.summaryLabel}>Денежный поток</ThemedText>
+          <ThemedText style={styles.summaryLabel}>
+            {isFT ? "Поток на ВТ" : "Денежный поток"}
+          </ThemedText>
           <ThemedText
             type="defaultSemiBold"
             style={{ color: cf >= 0 ? "#2e7d32" : "#c62828" }}
@@ -119,7 +152,37 @@ export default function ActionsScreen() {
             {fmt(cf)}
           </ThemedText>
         </View>
+        <View style={styles.summaryRow}>
+          <ThemedText style={styles.summaryLabel}>Фаза</ThemedText>
+          <ThemedText type="defaultSemiBold">
+            {isFT ? "Большой круг" : "Крысиные гонки"}
+          </ThemedText>
+        </View>
       </ThemedView>
+
+      {canExit && (
+        <ThemedView style={[styles.card, styles.exitCard]}>
+          <ThemedText type="subtitle">🎉 Выход доступен!</ThemedText>
+          <ThemedText style={styles.muted}>
+            Пассивный доход покрывает все расходы — можно выйти из крысиных гонок.
+          </ThemedText>
+          <TouchableOpacity style={styles.exitBtn} onPress={onExit}>
+            <ThemedText type="defaultSemiBold" style={styles.submitText}>
+              Выйти из крысиных гонок
+            </ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      )}
+
+      {won && (
+        <ThemedView style={[styles.card, styles.winCard]}>
+          <ThemedText type="subtitle">🏆 Вы выиграли!</ThemedText>
+          <ThemedText style={styles.muted}>
+            Прибавка к потоку ≥ {fmt(RULES.fastTrack.winCashflowDelta)}
+            {p.fastTrack?.dreamBought ? " · мечта куплена" : ""}.
+          </ThemedText>
+        </ThemedView>
+      )}
 
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">День получки</ThemedText>
@@ -129,6 +192,17 @@ export default function ActionsScreen() {
           onPress={onPayday}
         />
       </ThemedView>
+
+      {isFT && (
+        <ThemedView style={styles.card}>
+          <ThemedText type="subtitle">Большой круг</ThemedText>
+          <ActionRow
+            title="Купить бизнес ВТ"
+            subtitle={`Куплено: ${p.fastTrack?.holdings.length ?? 0} · Прибавка к потоку: ${fmt(p.fastTrack?.cashflowDeltaSinceStart ?? 0)}`}
+            onPress={() => router.push("/actions/fast-track-buy")}
+          />
+        </ThemedView>
+      )}
 
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Сделки</ThemedText>
@@ -248,6 +322,24 @@ const styles = StyleSheet.create({
     borderColor: "rgba(127,127,127,0.4)",
     gap: 8,
   },
+  exitCard: {
+    borderColor: "#2e7d32",
+    borderWidth: 1.5,
+    backgroundColor: "rgba(46,125,50,0.05)",
+  },
+  winCard: {
+    borderColor: "#bf8f00",
+    borderWidth: 1.5,
+    backgroundColor: "rgba(191,143,0,0.08)",
+  },
+  exitBtn: {
+    backgroundColor: "#2e7d32",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 4,
+  },
+  submitText: { color: "#fff" },
   row: {
     paddingVertical: 10,
     paddingHorizontal: 2,
