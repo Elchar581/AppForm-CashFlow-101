@@ -14,6 +14,38 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="setup" options={{ title: "Новая партия" }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="actions/buy-stock"
+          options={{ title: "Купить акции" }}
+        />
+        <Stack.Screen
+          name="actions/sell-stock"
+          options={{ title: "Продать акции" }}
+        />
+        <Stack.Screen
+          name="actions/buy-real-estate"
+          options={{ title: "Купить недвижимость" }}
+        />
+        <Stack.Screen
+          name="actions/sell-real-estate"
+          options={{ title: "Продать недвижимость" }}
+        />
+        <Stack.Screen
+          name="actions/buy-business"
+          options={{ title: "Купить бизнес" }}
+        />
+        <Stack.Screen
+          name="actions/sell-business"
+          options={{ title: "Продать бизнес" }}
+        />
+        <Stack.Screen
+          name="actions/bank-loan"
+          options={{ title: "Кредит банка" }}
+        />
+        <Stack.Screen
+          name="actions/doodad"
+          options={{ title: "Мелкая трата (Doodad)" }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

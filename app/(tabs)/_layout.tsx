@@ -10,11 +10,12 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const tint = Colors[colorScheme ?? "light"].tint;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: tint,
         headerShown: true,
         tabBarButton: HapticTab,
         headerLeft: () => (
@@ -22,9 +23,7 @@ export default function TabLayout() {
             onPress={() => router.replace("/")}
             style={{ paddingHorizontal: 16 }}
           >
-            <ThemedText style={{ color: Colors[colorScheme ?? "light"].tint }}>
-              Меню
-            </ThemedText>
+            <ThemedText style={{ color: tint }}>Меню</ThemedText>
           </TouchableOpacity>
         ),
       }}
@@ -35,6 +34,24 @@ export default function TabLayout() {
           title: "Бланк",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="balance"
+        options={{
+          title: "Баланс",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="list.bullet" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="actions"
+        options={{
+          title: "Действия",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="plus.circle.fill" color={color} />
           ),
         }}
       />
