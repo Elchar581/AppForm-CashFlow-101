@@ -1,0 +1,22 @@
+{
+  "maxChildren": 3,
+  "maxProfileSlots": 4,
+  "bankLoan": {
+    "step": 1000,
+    "monthlyPaymentPer1000": 100
+  },
+  "fastTrack": {
+    "passiveIncomeMultiplier": 100,
+    "winCashflowDelta": 50000
+  },
+  "charity": {
+    "incomePercent": 10,
+    "turnsWithExtraDice": 3
+  },
+  "downsize": {
+    "skipTurns": 2
+  },
+  "bankruptcy": {
+    "skipTurns": 3
+  }
+}

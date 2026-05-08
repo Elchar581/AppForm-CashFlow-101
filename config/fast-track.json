@@ -1,0 +1,20 @@
+[
+  { "id": "family-restaurants",     "name": "Семейная сеть ресторанов",         "kind": "monthly", "amount": 14000,  "downPayment": 300000 },
+  { "id": "diner-franchise",        "name": "Франшиза закусочной",              "kind": "monthly", "amount": 9500,   "downPayment": 300000 },
+  { "id": "fast-food",              "name": "Рестораны быстрого питания",       "kind": "monthly", "amount": 5000,   "downPayment": 120000 },
+  { "id": "utility-company",        "name": "Компания коммунальных услуг",      "kind": "monthly", "amount": 10000,  "downPayment": 200000 },
+  { "id": "truck-parts-factory",    "name": "Завод запчастей для грузовиков",   "kind": "monthly", "amount": 5000,   "downPayment": 150000 },
+  { "id": "gold-mine",              "name": "Купите золотой рудник",            "kind": "monthly", "amount": 25000,  "downPayment": 150000, "diceRequired": 3 },
+  { "id": "chicken-grill-franchise","name": "Франшиза куриных гриль баров",     "kind": "monthly", "amount": 10000,  "downPayment": 300000 },
+  { "id": "beauty-salons",          "name": "Салоны красоты (3 кабинета)",      "kind": "monthly", "amount": 10000,  "downPayment": 250000 },
+  { "id": "auto-repair-1",          "name": "Авторемонтная мастерская",         "kind": "monthly", "amount": 6000,   "downPayment": 150000 },
+  { "id": "russian-oil-deal",       "name": "Нефтяная сделка в России",         "kind": "monthly", "amount": 75000,  "downPayment": 300000, "diceRequired": 4 },
+  { "id": "auto-repair-2",          "name": "Авторемонтная мастерская (2)",     "kind": "monthly", "amount": 6000,   "downPayment": 150000 },
+  { "id": "ipo-software",           "name": "IPO компании программных продуктов","kind": "oneTime","amount": 500000, "downPayment": 25000,  "diceRequired": 6 },
+  { "id": "apartment-60-fast",      "name": "60-квартирный доходный дом",       "kind": "monthly", "amount": 8000,   "downPayment": 300000 },
+  { "id": "pizza-franchise",        "name": "Франшиза пиццерии",                "kind": "monthly", "amount": 7000,   "downPayment": 225000 },
+  { "id": "warehouse-200",          "name": "Склад на 200 мини-хранилищ",       "kind": "monthly", "amount": 6000,   "downPayment": 200000 },
+  { "id": "ipo-biotech",            "name": "IPO биотехнической компании",      "kind": "oneTime", "amount": 500000, "downPayment": 50000,  "diceRequired": 5 },
+  { "id": "dry-cleaner",            "name": "Химчистка",                        "kind": "monthly", "amount": 3000,   "downPayment": 100000 },
+  { "id": "kitchen-ad-agency",      "name": "Рекламное агенство кухонной посуды","kind": "monthly","amount": 50000,  "downPayment": 225000, "diceRequired": 4 }
+]

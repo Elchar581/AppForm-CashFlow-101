@@ -1,0 +1,8 @@
+[
+  { "id": "house-3-2",          "name": "3/2 дом" },
+  { "id": "loan-sister-in-law", "name": "Одолжить денег своячечнице" },
+  { "id": "rare-gold-coin",     "name": "Редкая золотая монета" },
+  { "id": "friend-needs-money", "name": "Другу нужны деньги" },
+  { "id": "10-acres",           "name": "10 акров земли" },
+  { "id": "company",            "name": "Компания" }
+]

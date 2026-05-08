@@ -1,0 +1,54 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+android/
+ios/
+.kotlin/
+build/
+
+# metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# environment
+.env*
+!.env.example
+
+# editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# typescript
+*.tsbuildinfo
+
+# logs
+*.log

@@ -1,0 +1,15 @@
+[
+  { "id": "big-house-3-2",       "name": "3/2 дом" },
+  { "id": "duplex",              "name": "2-плекс" },
+  { "id": "fourplex",            "name": "4-плекс" },
+  { "id": "8-plex",              "name": "8-плекс" },
+  { "id": "apartment-12",        "name": "Многоквартирный дом (12х)" },
+  { "id": "apartment-24",        "name": "Многоквартирный дом (24x)" },
+  { "id": "apartment-60",        "name": "Многоквартирный дом (60x)" },
+  { "id": "20-acres",            "name": "20 акров земли" },
+  { "id": "partnership-llc",     "name": "Партнерство с ОО" },
+  { "id": "business-for-sale",   "name": "Предприятие на продажу" },
+  { "id": "shopping-arcade",     "name": "Торговый пассаж" },
+  { "id": "car-wash",            "name": "Автомойка" },
+  { "id": "boarding-house",      "name": "Пансионат" }
+]

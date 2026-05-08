@@ -1,0 +1,8 @@
+[
+  { "id": "myt4u",  "ticker": "MYT4U",  "hasDeposit": false, "dividendPerShare": 0 },
+  { "id": "ok4u",   "ticker": "OK4U",   "hasDeposit": false, "dividendPerShare": 0 },
+  { "id": "on2u",   "ticker": "ON2U",   "hasDeposit": false, "dividendPerShare": 0 },
+  { "id": "gro4us", "ticker": "GRO4US", "hasDeposit": false, "dividendPerShare": 0 },
+  { "id": "cd",     "ticker": "CD",     "hasDeposit": true,  "dividendPerShare": 20 },
+  { "id": "2big",   "ticker": "2BIG",   "hasDeposit": true,  "dividendPerShare": 10 }
+]

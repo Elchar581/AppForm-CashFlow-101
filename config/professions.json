@@ -1,0 +1,278 @@
+[
+  {
+    "id": "teacher",
+    "name": "Учитель",
+    "income": { "salary": 3300 },
+    "expenses": {
+      "taxes": 630,
+      "mortgage": 500,
+      "schoolLoan": 60,
+      "carLoan": 100,
+      "creditCards": 90,
+      "otherLoans": 50,
+      "other": 760,
+      "perChild": 180
+    },
+    "assets": { "savings": 400 },
+    "liabilities": {
+      "mortgage": 50000,
+      "schoolLoan": 12000,
+      "carLoan": 5000,
+      "creditCards": 3000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "engineer",
+    "name": "Инженер",
+    "income": { "salary": 4900 },
+    "expenses": {
+      "taxes": 1050,
+      "mortgage": 700,
+      "schoolLoan": 60,
+      "carLoan": 140,
+      "creditCards": 120,
+      "otherLoans": 50,
+      "other": 1090,
+      "perChild": 250
+    },
+    "assets": { "savings": 400 },
+    "liabilities": {
+      "mortgage": 75000,
+      "schoolLoan": 12000,
+      "carLoan": 7000,
+      "creditCards": 4000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "mechanic",
+    "name": "Автомеханик",
+    "income": { "salary": 2000 },
+    "expenses": {
+      "taxes": 360,
+      "mortgage": 300,
+      "schoolLoan": 0,
+      "carLoan": 60,
+      "creditCards": 60,
+      "otherLoans": 50,
+      "other": 450,
+      "perChild": 110
+    },
+    "assets": { "savings": 670 },
+    "liabilities": {
+      "mortgage": 31000,
+      "schoolLoan": 0,
+      "carLoan": 3000,
+      "creditCards": 2000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "janitor",
+    "name": "Дворник",
+    "income": { "salary": 1600 },
+    "expenses": {
+      "taxes": 280,
+      "mortgage": 200,
+      "schoolLoan": 0,
+      "carLoan": 60,
+      "creditCards": 60,
+      "otherLoans": 50,
+      "other": 300,
+      "perChild": 70
+    },
+    "assets": { "savings": 560 },
+    "liabilities": {
+      "mortgage": 20000,
+      "schoolLoan": 0,
+      "carLoan": 4000,
+      "creditCards": 2000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "nurse",
+    "name": "Медсестра",
+    "income": { "salary": 3100 },
+    "expenses": {
+      "taxes": 600,
+      "mortgage": 400,
+      "schoolLoan": 30,
+      "carLoan": 100,
+      "creditCards": 90,
+      "otherLoans": 50,
+      "other": 710,
+      "perChild": 170
+    },
+    "assets": { "savings": 480 },
+    "liabilities": {
+      "mortgage": 47000,
+      "schoolLoan": 6000,
+      "carLoan": 5000,
+      "creditCards": 3000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "pilot",
+    "name": "Пилот авиалиний",
+    "income": { "salary": 9500 },
+    "expenses": {
+      "taxes": 2350,
+      "mortgage": 1330,
+      "schoolLoan": 0,
+      "carLoan": 300,
+      "creditCards": 660,
+      "otherLoans": 50,
+      "other": 2210,
+      "perChild": 480
+    },
+    "assets": { "savings": 400 },
+    "liabilities": {
+      "mortgage": 143000,
+      "schoolLoan": 0,
+      "carLoan": 15000,
+      "creditCards": 22000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "secretary",
+    "name": "Секретарь",
+    "income": { "salary": 2500 },
+    "expenses": {
+      "taxes": 460,
+      "mortgage": 400,
+      "schoolLoan": 0,
+      "carLoan": 80,
+      "creditCards": 60,
+      "otherLoans": 50,
+      "other": 570,
+      "perChild": 140
+    },
+    "assets": { "savings": 710 },
+    "liabilities": {
+      "mortgage": 38000,
+      "schoolLoan": 0,
+      "carLoan": 4000,
+      "creditCards": 2000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "lawyer",
+    "name": "Адвокат",
+    "income": { "salary": 7500 },
+    "expenses": {
+      "taxes": 1830,
+      "mortgage": 1100,
+      "schoolLoan": 390,
+      "carLoan": 220,
+      "creditCards": 180,
+      "otherLoans": 50,
+      "other": 1650,
+      "perChild": 380
+    },
+    "assets": { "savings": 400 },
+    "liabilities": {
+      "mortgage": 115000,
+      "schoolLoan": 78000,
+      "carLoan": 11000,
+      "creditCards": 6000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "truck-driver",
+    "name": "Водитель грузовика",
+    "income": { "salary": 2500 },
+    "expenses": {
+      "taxes": 460,
+      "mortgage": 400,
+      "schoolLoan": 0,
+      "carLoan": 80,
+      "creditCards": 60,
+      "otherLoans": 50,
+      "other": 570,
+      "perChild": 140
+    },
+    "assets": { "savings": 750 },
+    "liabilities": {
+      "mortgage": 38000,
+      "schoolLoan": 0,
+      "carLoan": 4000,
+      "creditCards": 2000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "manager",
+    "name": "Менеджер",
+    "income": { "salary": 4600 },
+    "expenses": {
+      "taxes": 910,
+      "mortgage": 700,
+      "schoolLoan": 60,
+      "carLoan": 120,
+      "creditCards": 90,
+      "otherLoans": 50,
+      "other": 1000,
+      "perChild": 240
+    },
+    "assets": { "savings": 400 },
+    "liabilities": {
+      "mortgage": 75000,
+      "schoolLoan": 12000,
+      "carLoan": 6000,
+      "creditCards": 3000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "doctor",
+    "name": "Врач",
+    "income": { "salary": 13200 },
+    "expenses": {
+      "taxes": 3420,
+      "mortgage": 1900,
+      "schoolLoan": 750,
+      "carLoan": 380,
+      "creditCards": 270,
+      "otherLoans": 50,
+      "other": 2880,
+      "perChild": 640
+    },
+    "assets": { "savings": 400 },
+    "liabilities": {
+      "mortgage": 202000,
+      "schoolLoan": 150000,
+      "carLoan": 19000,
+      "creditCards": 9000,
+      "otherLoans": 1000
+    }
+  },
+  {
+    "id": "police-officer",
+    "name": "Офицер полиции",
+    "income": { "salary": 3000 },
+    "expenses": {
+      "taxes": 580,
+      "mortgage": 400,
+      "schoolLoan": 0,
+      "carLoan": 100,
+      "creditCards": 60,
+      "otherLoans": 50,
+      "other": 690,
+      "perChild": 160
+    },
+    "assets": { "savings": 520 },
+    "liabilities": {
+      "mortgage": 46000,
+      "schoolLoan": 0,
+      "carLoan": 5000,
+      "creditCards": 2000,
+      "otherLoans": 1000
+    }
+  }
+]
