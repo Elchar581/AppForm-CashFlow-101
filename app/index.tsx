@@ -1,8 +1,7 @@
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
-  ScrollView,
+  Image,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -12,118 +11,56 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LanguagePicker } from "@/components/language-picker";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { getProfession, monthlyCashflow } from "@/lib/calculations";
-import { RULES } from "@/lib/configs";
 import { LOCALE_LABELS } from "@/lib/i18n";
 import { useLocaleStore, useT } from "@/store/locale";
-import { useProfileSlots, useProfilesActions } from "@/store/profiles";
 
-const fmt = (n: number) =>
-  (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
-
-const formatDate = (ts: number) => {
-  const d = new Date(ts);
-  return (
-    d.toLocaleDateString("ru-RU") +
-    " " +
-    d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
-  );
-};
-
-export default function MenuScreen() {
+export default function WelcomeScreen() {
   const t = useT();
-  const slots = useProfileSlots();
-  const { setActive, deleteProfile } = useProfilesActions();
   const currentLocale = useLocaleStore((s) => s.locale);
   const [langModalVisible, setLangModalVisible] = useState(false);
 
-  const emptyCount = Math.max(0, RULES.maxProfileSlots - slots.length);
-
-  const openProfile = (id: string) => {
-    setActive(id);
-    router.push("/statement");
-  };
-
-  const confirmDelete = (id: string, name: string) => {
-    Alert.alert(t("menu.deleteTitle"), t("menu.deleteText", { name }), [
-      { text: t("common.cancel"), style: "cancel" },
-      {
-        text: t("common.delete"),
-        style: "destructive",
-        onPress: () => deleteProfile(id),
-      },
-    ]);
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      <ThemedView style={styles.header}>
-        <View style={styles.headerRow}>
-          <ThemedText type="title">{t("app.name")}</ThemedText>
+      <ThemedView style={styles.body}>
+        <View style={styles.hero}>
+          <View style={styles.logoWrap}>
+            <Image
+              source={require("@/assets/images/icon.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          <ThemedText type="title" style={styles.title}>
+            {t("app.name")}
+          </ThemedText>
+          <ThemedText style={styles.tagline}>
+            {t("welcome.tagline")}
+          </ThemedText>
+        </View>
+
+        <View style={styles.controls}>
           <TouchableOpacity
             style={styles.langBtn}
             onPress={() => setLangModalVisible(true)}
+            activeOpacity={0.7}
           >
             <ThemedText style={styles.langBtnText}>
               🌐 {LOCALE_LABELS[currentLocale]}
             </ThemedText>
+            <ThemedText style={styles.langChevron}>›</ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.playBtn}
+            onPress={() => router.push("/profiles")}
+            activeOpacity={0.85}
+          >
+            <ThemedText type="defaultSemiBold" style={styles.playText}>
+              ▶  {t("welcome.play")}
+            </ThemedText>
           </TouchableOpacity>
         </View>
-        <ThemedText style={styles.muted}>{t("menu.subtitle")}</ThemedText>
       </ThemedView>
-
-      <ScrollView contentContainerStyle={styles.list}>
-        {slots.map((slot) => {
-          const prof = getProfession(slot.player.professionId);
-          const cf = monthlyCashflow(slot.player, prof);
-          const profName = t(`professions.${prof.id}`, {
-            defaultValue: prof.name,
-          });
-          const name = slot.player.playerName || profName;
-          return (
-            <View key={slot.id} style={styles.slot}>
-              <TouchableOpacity
-                style={styles.slotMain}
-                onPress={() => openProfile(slot.id)}
-              >
-                <ThemedText type="defaultSemiBold">
-                  {name} · {profName}
-                </ThemedText>
-                <ThemedText
-                  style={{ color: cf >= 0 ? "#2e7d32" : "#c62828" }}
-                >
-                  {cf >= 0 ? "+" : ""}
-                  {fmt(cf)} {t("menu.perMonth")}
-                </ThemedText>
-                <ThemedText style={styles.meta}>
-                  {slot.player.phase === "fastTrack"
-                    ? t("menu.onFastTrack")
-                    : ""}
-                  {formatDate(slot.updatedAt)}
-                </ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteBtn}
-                onPress={() => confirmDelete(slot.id, name)}
-              >
-                <ThemedText style={styles.deleteText}>
-                  {t("common.delete")}
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
-          );
-        })}
-
-        {Array.from({ length: emptyCount }).map((_, i) => (
-          <TouchableOpacity
-            key={`empty-${i}`}
-            style={[styles.slot, styles.empty]}
-            onPress={() => router.push("/setup")}
-          >
-            <ThemedText style={styles.muted}>{t("menu.create")}</ThemedText>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
 
       <LanguagePicker
         visible={langModalVisible}
@@ -135,42 +72,70 @@ export default function MenuScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { padding: 24, gap: 4 },
-  headerRow: {
-    flexDirection: "row",
+  body: {
+    flex: 1,
+    paddingHorizontal: 32,
     justifyContent: "space-between",
+    paddingVertical: 48,
+  },
+  hero: {
     alignItems: "center",
-    gap: 8,
+    gap: 14,
+    marginTop: 32,
+  },
+  logoWrap: {
+    width: 200,
+    height: 200,
+    borderRadius: 44,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    elevation: 8,
+    marginBottom: 8,
+  },
+  logo: { width: "100%", height: "100%" },
+  title: {
+    textAlign: "center",
+    fontSize: 36,
+    lineHeight: 42,
+  },
+  tagline: {
+    textAlign: "center",
+    opacity: 0.65,
+    fontSize: 15,
+  },
+  controls: {
+    gap: 14,
+    marginBottom: 16,
   },
   langBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(127,127,127,0.4)",
   },
-  langBtnText: { fontSize: 13 },
-  list: { padding: 16, gap: 12 },
-  slot: {
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(127,127,127,0.4)",
-    overflow: "hidden",
-  },
-  slotMain: { padding: 16, gap: 4 },
-  deleteBtn: {
-    paddingVertical: 10,
+  langBtnText: { fontSize: 16 },
+  langChevron: { fontSize: 22, opacity: 0.6 },
+  playBtn: {
+    backgroundColor: "#2e7d32",
+    paddingVertical: 18,
+    borderRadius: 14,
     alignItems: "center",
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(127,127,127,0.3)",
+    shadowColor: "#2e7d32",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  deleteText: { color: "#c62828", fontSize: 14 },
-  empty: {
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 80,
+  playText: {
+    color: "#fff",
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
-  meta: { fontSize: 12, opacity: 0.6 },
-  muted: { opacity: 0.6 },
 });

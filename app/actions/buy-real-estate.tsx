@@ -1,10 +1,9 @@
 import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
@@ -15,6 +14,7 @@ import { ThemedView } from "@/components/themed-view";
 import { BIG_DEALS, SMALL_DEALS } from "@/lib/configs";
 import { buyRealEstate } from "@/lib/events";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -32,7 +32,7 @@ export default function BuyRealEstateScreen() {
   const [cashflow, setCashflow] = useState("");
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
   }, [slot]);
 
   if (!slot) return null;
@@ -51,22 +51,19 @@ export default function BuyRealEstateScreen() {
 
   const onSubmit = () => {
     if (!Number.isFinite(priceN) || priceN <= 0) {
-      Alert.alert("Ошибка", "Введите цену > 0.");
+      alertModal(t("common.error"), "");
       return;
     }
     if (!Number.isFinite(dpN) || dpN < 0 || dpN > priceN) {
-      Alert.alert("Ошибка", "Первый взнос должен быть от 0 до цены.");
+      alertModal(t("common.error"), "");
       return;
     }
     if (dpN > slot.player.cash) {
-      Alert.alert(
-        "Недостаточно средств",
-        `Нужно ${fmt(dpN)}, доступно ${fmt(slot.player.cash)}.`,
-      );
+      alertModal(t("forms.notEnough"), t("forms.notEnoughText", { amount: fmt(dpN), cash: fmt(slot.player.cash) }));
       return;
     }
     if (!Number.isFinite(cfN)) {
-      Alert.alert("Ошибка", "Введите месячный денежный поток (можно 0).");
+      alertModal(t("common.error"), "");
       return;
     }
     updatePlayer(slot.id, (s) =>
@@ -87,7 +84,7 @@ export default function BuyRealEstateScreen() {
       <Stack.Screen options={{ title: t("actions.buyRealEstate") }} />
       <FormScroll>
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Тип сделки</ThemedText>
+        <ThemedText type="subtitle">{t("buyRE.dealType")}</ThemedText>
         <View style={styles.tabs}>
           <TouchableOpacity
             style={[styles.tab, deck === "small" && styles.tabActive]}
@@ -100,7 +97,7 @@ export default function BuyRealEstateScreen() {
             <ThemedText
               type={deck === "small" ? "defaultSemiBold" : "default"}
             >
-              Малая
+              {t("buyRE.small")}
             </ThemedText>
           </TouchableOpacity>
           <TouchableOpacity
@@ -117,7 +114,7 @@ export default function BuyRealEstateScreen() {
           </TouchableOpacity>
         </View>
         <ThemedText style={styles.muted}>
-          Выберите шаблон или введите название вручную
+          {t("buyRE.pickFromCatalog")}
         </ThemedText>
         <View style={styles.chips}>
           {catalog.map((d) => {
@@ -146,9 +143,9 @@ export default function BuyRealEstateScreen() {
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="defaultSemiBold">Название</ThemedText>
+        <ThemedText type="defaultSemiBold">{t("forms.name")}</ThemedText>
         <ThemedInput
-          placeholder="Например, 3/2 дом"
+          placeholder={t("buyRE.placeholderName")}
           value={name}
           onChangeText={(v) => {
             setName(v);
@@ -157,43 +154,43 @@ export default function BuyRealEstateScreen() {
         />
 
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Цена
+          {t("forms.price")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
-          placeholder="Из карточки сделки"
+          placeholder={t("forms.priceFromCard")}
           value={price}
           onChangeText={setPrice}
         />
 
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Первый взнос
+          {t("forms.downPayment")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
-          placeholder="Сколько платим из сбережений"
+          placeholder={t("forms.downPaymentSub")}
           value={downPayment}
           onChangeText={setDownPayment}
         />
 
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Месячный поток
+          {t("forms.monthlyCashflow")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
-          placeholder="Из карточки сделки"
+          placeholder={t("forms.priceFromCard")}
           value={cashflow}
           onChangeText={setCashflow}
         />
 
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>Ипотека (price − dp)</ThemedText>
+          <ThemedText style={styles.muted}>{t("forms.mortgageMinusDp")}</ThemedText>
           <ThemedText type="defaultSemiBold">
             {fmt(Math.max(0, mortgage))}
           </ThemedText>
         </View>
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сбережения после</ThemedText>
+          <ThemedText style={styles.muted}>{t("forms.savingsAfter")}</ThemedText>
           <ThemedText
             type="defaultSemiBold"
             style={{

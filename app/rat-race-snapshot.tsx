@@ -10,7 +10,7 @@ export default function RatRaceSnapshotScreen() {
   const slot = useActiveProfile();
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
   }, [slot]);
 
   if (!slot) return null;

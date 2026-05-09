@@ -1,6 +1,10 @@
 import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
 import { ThemedText } from "@/components/themed-text";
@@ -8,6 +12,7 @@ import { ThemedView } from "@/components/themed-view";
 import { FAST_TRACK } from "@/lib/configs";
 import { buyFastTrackBusiness } from "@/lib/events";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -20,7 +25,7 @@ export default function FastTrackBuyScreen() {
   const [businessId, setBusinessId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
     else if (slot.player.phase !== "fastTrack") router.back();
   }, [slot]);
 
@@ -32,16 +37,13 @@ export default function FastTrackBuyScreen() {
 
   const onSubmit = () => {
     if (!businessId) {
-      Alert.alert("Не выбрано", "Сначала выберите бизнес из списка.");
+      alertModal(t("common.error"), "");
       return;
     }
     const biz = FAST_TRACK.find((b) => b.id === businessId);
     if (!biz) return;
     if (biz.downPayment > p.cash) {
-      Alert.alert(
-        "Недостаточно средств",
-        `Нужно ${fmt(biz.downPayment)}, доступно ${fmt(p.cash)}.`,
-      );
+      alertModal(t("forms.notEnough"), t("forms.notEnoughText", { amount: fmt(biz.downPayment), cash: fmt(p.cash) }));
       return;
     }
     updatePlayer(slot.id, (s) => buyFastTrackBusiness(s, businessId));
@@ -54,13 +56,13 @@ export default function FastTrackBuyScreen() {
       <FormScroll>
       <ThemedView style={styles.summary}>
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сбережения</ThemedText>
+          <ThemedText style={styles.muted}>{t("payOff.cashLabel")}</ThemedText>
           <ThemedText type="defaultSemiBold">{fmt(p.cash)}</ThemedText>
         </View>
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Выберите бизнес</ThemedText>
+        <ThemedText type="subtitle">{t("ftBuy.chooseBiz")}</ThemedText>
         {FAST_TRACK.map((b) => {
           const affordable = b.downPayment <= p.cash;
           const alreadyBought =
@@ -87,28 +89,25 @@ export default function FastTrackBuyScreen() {
                   {t(`fastTrackBusinesses.${b.id}`, { defaultValue: b.name })}
                 </ThemedText>
                 {alreadyBought ? (
-                  <ThemedText style={styles.boughtBadge}>✓ куплен</ThemedText>
+                  <ThemedText style={styles.boughtBadge}>{t("ftBuy.bought")}</ThemedText>
                 ) : b.diceRequired ? (
                   <ThemedText style={styles.dice}>
-                    🎲{" "}
                     {b.diceRequired === 6
-                      ? "нужно 6"
-                      : `нужно ${b.diceRequired}+`}
+                      ? t("ftBuy.diceExact", { n: 6 })
+                      : t("ftBuy.diceMin", { n: b.diceRequired })}
                   </ThemedText>
                 ) : null}
               </View>
               <View style={styles.row}>
                 <ThemedText style={styles.muted}>
-                  {b.kind === "monthly"
-                    ? "Прибыль / мес"
-                    : "Разовая выплата"}
+                  {b.kind === "monthly" ? t("ftBuy.monthlyProfit") : t("ftBuy.oneTimePayout")}
                 </ThemedText>
                 <ThemedText style={{ color: "#2e7d32" }}>
                   {fmt(b.amount)}
                 </ThemedText>
               </View>
               <View style={styles.row}>
-                <ThemedText style={styles.muted}>Первый взнос</ThemedText>
+                <ThemedText style={styles.muted}>{t("ftBuy.downPayment")}</ThemedText>
                 <ThemedText>{fmt(b.downPayment)}</ThemedText>
               </View>
             </TouchableOpacity>
@@ -118,18 +117,16 @@ export default function FastTrackBuyScreen() {
 
       {selected && (
         <ThemedView style={styles.card}>
-          <ThemedText type="subtitle">Подтверждение</ThemedText>
+          <ThemedText type="subtitle">{t("ftBuy.confirmation")}</ThemedText>
           <View style={styles.row}>
-            <ThemedText style={styles.muted}>Заплатить</ThemedText>
+            <ThemedText style={styles.muted}>{t("ftBuy.payAmount")}</ThemedText>
             <ThemedText type="defaultSemiBold">
               {fmt(selected.downPayment)}
             </ThemedText>
           </View>
           <View style={styles.row}>
             <ThemedText style={styles.muted}>
-              {selected.kind === "monthly"
-                ? "Прибавка к денежному потоку"
-                : "Сразу зачислить в сбережения"}
+              {selected.kind === "monthly" ? t("ftBuy.addToFlow") : t("ftBuy.payOnce")}
             </ThemedText>
             <ThemedText
               type="defaultSemiBold"
@@ -139,7 +136,7 @@ export default function FastTrackBuyScreen() {
             </ThemedText>
           </View>
           <View style={styles.row}>
-            <ThemedText style={styles.muted}>Сбережения после</ThemedText>
+            <ThemedText style={styles.muted}>{t("ftBuy.cashAfter")}</ThemedText>
             <ThemedText type="defaultSemiBold">
               {fmt(
                 p.cash -
@@ -150,10 +147,7 @@ export default function FastTrackBuyScreen() {
           </View>
           {selected.diceRequired ? (
             <ThemedText style={styles.muted}>
-              {selected.diceRequired === 6
-                ? "Условие: выбросьте 6 очков на кубике."
-                : `Условие: выбросьте ${selected.diceRequired} или более очков на кубике.`}
-              {" "}Бросаете физический кубик сами — приложение этого не проверяет.
+              {selected.diceRequired === 6 ? t("ftBuy.conditionExact") : t("ftBuy.conditionMin", { n: selected.diceRequired })}{" "}{t("ftBuy.conditionFooter")}
             </ThemedText>
           ) : null}
         </ThemedView>

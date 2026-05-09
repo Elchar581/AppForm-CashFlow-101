@@ -22,7 +22,7 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         headerLeft: () => (
           <TouchableOpacity
-            onPress={() => router.replace("/")}
+            onPress={() => router.replace("/profiles")}
             style={styles.menuBtn}
             hitSlop={8}
           >

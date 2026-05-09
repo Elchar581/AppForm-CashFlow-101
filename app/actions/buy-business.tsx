@@ -1,10 +1,9 @@
 import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
@@ -14,6 +13,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { buyBusiness } from "@/lib/events";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -30,7 +30,7 @@ export default function BuyBusinessScreen() {
   const [cashflow, setCashflow] = useState("");
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
   }, [slot]);
 
   if (!slot) return null;
@@ -42,26 +42,23 @@ export default function BuyBusinessScreen() {
 
   const onSubmit = () => {
     if (!name.trim()) {
-      Alert.alert("Ошибка", "Введите название бизнеса.");
+      alertModal(t("common.error"), "");
       return;
     }
     if (!Number.isFinite(priceN) || priceN <= 0) {
-      Alert.alert("Ошибка", "Цена должна быть > 0.");
+      alertModal(t("common.error"), "");
       return;
     }
     if (!Number.isFinite(dpN) || dpN < 0) {
-      Alert.alert("Ошибка", "Первый взнос должен быть ≥ 0.");
+      alertModal(t("common.error"), "");
       return;
     }
     if (dpN > slot.player.cash) {
-      Alert.alert(
-        "Недостаточно средств",
-        `Нужно ${fmt(dpN)}, доступно ${fmt(slot.player.cash)}.`,
-      );
+      alertModal(t("forms.notEnough"), t("forms.notEnoughText", { amount: fmt(dpN), cash: fmt(slot.player.cash) }));
       return;
     }
     if (!Number.isFinite(cfN)) {
-      Alert.alert("Ошибка", "Введите месячный поток (можно 0).");
+      alertModal(t("common.error"), "");
       return;
     }
     updatePlayer(slot.id, (s) =>
@@ -81,15 +78,15 @@ export default function BuyBusinessScreen() {
       <Stack.Screen options={{ title: t("actions.buyBusiness") }} />
       <FormScroll>
       <ThemedView style={styles.card}>
-        <ThemedText type="defaultSemiBold">Название</ThemedText>
+        <ThemedText type="defaultSemiBold">{t("forms.name")}</ThemedText>
         <ThemedInput
-          placeholder="Например, Кафе на углу"
+          placeholder={t("buyBiz.placeholderName")}
           value={name}
           onChangeText={setName}
         />
 
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Цена бизнеса
+          {t("forms.price")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
@@ -98,7 +95,7 @@ export default function BuyBusinessScreen() {
         />
 
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Первый взнос
+          {t("forms.downPayment")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
@@ -107,17 +104,17 @@ export default function BuyBusinessScreen() {
         />
 
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Пассив (если есть)
+          {t("forms.liability")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
-          placeholder="Долг по бизнесу, если карточка указывает"
+          placeholder={t("forms.liabilitySub")}
           value={liability}
           onChangeText={setLiability}
         />
 
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Месячный поток
+          {t("forms.monthlyCashflow")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
@@ -126,7 +123,7 @@ export default function BuyBusinessScreen() {
         />
 
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сбережения после</ThemedText>
+          <ThemedText style={styles.muted}>{t("forms.savingsAfter")}</ThemedText>
           <ThemedText
             type="defaultSemiBold"
             style={{

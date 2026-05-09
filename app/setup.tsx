@@ -1,11 +1,10 @@
 import { Stack, router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
+  TouchableOpacity
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,6 +12,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { PROFESSIONS } from "@/lib/configs";
+import { alertModal } from "@/store/alert";
 import { useT } from "@/store/locale";
 import { useProfilesActions } from "@/store/profiles";
 
@@ -27,11 +27,15 @@ export default function SetupScreen() {
   const inputColor = colorScheme === "dark" ? "#fff" : "#111";
   const placeholderColor = colorScheme === "dark" ? "#666" : "#999";
 
-  const onPick = (professionId: string, professionName: string) => {
-    const finalName = name.trim() || professionName;
+  const onPick = (professionId: string) => {
+    // Если игрок не ввёл своё имя — сохраняем пустую строку, чтобы при
+    // отображении использовалось переведённое название профессии в текущей
+    // локали. Если ввёл — сохраняем как есть (имя пользовательское,
+    // не локализуется).
+    const finalName = name.trim();
     const slot = createProfile(finalName, professionId);
     if (!slot) {
-      Alert.alert(t("setup.slotsFullTitle"), t("setup.slotsFullText"));
+      alertModal(t("setup.slotsFullTitle"), t("setup.slotsFullText"));
       return;
     }
     setActive(slot.id);
@@ -74,7 +78,7 @@ export default function SetupScreen() {
             <TouchableOpacity
               key={p.id}
               style={styles.card}
-              onPress={() => onPick(p.id, profName)}
+              onPress={() => onPick(p.id)}
             >
               <ThemedText type="defaultSemiBold">{profName}</ThemedText>
               <ThemedView style={styles.row}>

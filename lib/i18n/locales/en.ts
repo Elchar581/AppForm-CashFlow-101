@@ -7,6 +7,12 @@ export default {
     apply: "Apply",
     confirm: "Confirm",
     error: "Error",
+    ok: "OK",
+  },
+  welcome: {
+    tagline: "Financial game simulator",
+    play: "Play",
+    languageBtn: "🌐 {{label}}",
   },
   menu: {
     subtitle: "Choose a game",

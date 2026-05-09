@@ -7,6 +7,12 @@ export default {
     apply: "应用",
     confirm: "确认",
     error: "错误",
+    ok: "好",
+  },
+  welcome: {
+    tagline: "财务模拟游戏",
+    play: "开始",
+    languageBtn: "🌐 {{label}}",
   },
   menu: {
     subtitle: "选择存档",

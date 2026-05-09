@@ -7,6 +7,12 @@ export default {
     apply: "Применить",
     confirm: "Подтвердить",
     error: "Ошибка",
+    ok: "OK",
+  },
+  welcome: {
+    tagline: "Финансовая игра-симулятор",
+    play: "Играть",
+    languageBtn: "🌐 {{label}}",
   },
   menu: {
     subtitle: "Выберите партию",

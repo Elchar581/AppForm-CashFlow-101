@@ -1,6 +1,10 @@
 import { Stack, router } from "expo-router";
 import React, { useEffect } from "react";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
 import { ThemedText } from "@/components/themed-text";
@@ -9,17 +13,18 @@ import { getProfession, isLiabilityPaidOff } from "@/lib/calculations";
 import { payOffLiability } from "@/lib/events";
 import type { ProfessionLiabilityKey } from "@/lib/types";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
-const ROWS: { key: ProfessionLiabilityKey; title: string; expenseLabel: string }[] = [
-  { key: "mortgage",    title: "Ипотека",                 expenseLabel: "Ипотека / аренда" },
-  { key: "schoolLoan",  title: "Кредит на образование",   expenseLabel: "Кредит на образование" },
-  { key: "carLoan",     title: "Кредит на машину",        expenseLabel: "Кредит на машину" },
-  { key: "creditCards", title: "Долг по кредитной карточке", expenseLabel: "Кредитные карточки" },
-  { key: "otherLoans",  title: "Мелкие кредиты",          expenseLabel: "Мелкие кредиты" },
+const ROWS: { key: ProfessionLiabilityKey; titleKey: string; expenseLabel: string }[] = [
+  { key: "mortgage",    titleKey: "statement.liabMortgage",     expenseLabel: "Ипотека / аренда" },
+  { key: "schoolLoan",  titleKey: "statement.liabSchoolLoan",   expenseLabel: "Кредит на образование" },
+  { key: "carLoan",     titleKey: "statement.liabCarLoan",      expenseLabel: "Кредит на машину" },
+  { key: "creditCards", titleKey: "statement.liabCreditCards",  expenseLabel: "Кредитные карточки" },
+  { key: "otherLoans",  titleKey: "statement.liabOtherLoans",   expenseLabel: "Мелкие кредиты" },
 ];
 
 export default function PayOffLiabilitiesScreen() {
@@ -28,7 +33,7 @@ export default function PayOffLiabilitiesScreen() {
   const { updatePlayer } = useProfilesActions();
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
     else if (slot.player.phase !== "ratRace") router.back();
   }, [slot]);
 
@@ -39,19 +44,19 @@ export default function PayOffLiabilitiesScreen() {
 
   const onPay = (key: ProfessionLiabilityKey, title: string, amount: number) => {
     if (amount > p.cash) {
-      Alert.alert(
-        "Недостаточно средств",
-        `На полное погашение «${title}» нужно ${fmt(amount)}, доступно ${fmt(p.cash)}.\n\nЧастичное погашение по правилам недоступно.`,
+      alertModal(
+        t("payOff.notEnoughTitle"),
+        t("payOff.notEnoughText", { name: title, amount: fmt(amount), cash: fmt(p.cash) }),
       );
       return;
     }
-    Alert.alert(
-      "Погасить полностью?",
-      `${title}\n\nЗаплатить ${fmt(amount)} из сбережений и закрыть пассив. Соответствующий ежемесячный платёж обнулится.`,
+    alertModal(
+      t("payOff.confirmTitle"),
+      t("payOff.confirmText", { name: title, amount: fmt(amount) }),
       [
-        { text: "Отмена", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Погасить",
+          text: t("payOff.confirmBtn"),
           onPress: () => updatePlayer(slot.id, (s) => payOffLiability(s, key)),
         },
       ],
@@ -69,20 +74,19 @@ export default function PayOffLiabilitiesScreen() {
       <FormScroll>
       <ThemedView style={styles.summary}>
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сбережения</ThemedText>
+          <ThemedText style={styles.muted}>{t("payOff.cashLabel")}</ThemedText>
           <ThemedText type="defaultSemiBold">{fmt(p.cash)}</ThemedText>
         </View>
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Можно закрыть</ThemedText>
+        <ThemedText type="subtitle">{t("payOff.canCloseHeader")}</ThemedText>
         <ThemedText style={styles.muted}>
-          Закрытие — только полностью. Списывает всю сумму пассива из
-          сбережений и обнуляет соответствующую строку расходов.
+          {t("payOff.canCloseHelper")}
         </ThemedText>
         {remaining.length === 0 ? (
           <ThemedText style={styles.muted}>
-            Все стартовые пассивы уже погашены 🎉
+            {t("payOff.allClosed")}
           </ThemedText>
         ) : (
           remaining.map((r) => {
@@ -93,12 +97,12 @@ export default function PayOffLiabilitiesScreen() {
               <View key={r.key} style={styles.item}>
                 <View style={styles.itemHeader}>
                   <ThemedText type="defaultSemiBold" style={{ flex: 1 }}>
-                    {r.title}
+                    {t(r.titleKey)}
                   </ThemedText>
                   <ThemedText type="defaultSemiBold">{fmt(amt)}</ThemedText>
                 </View>
                 <ThemedText style={styles.muted}>
-                  Сейчас платим в месяц: {fmt(exp)}
+                  {t("payOff.currentMonthly", { amount: fmt(exp) })}
                 </ThemedText>
                 <TouchableOpacity
                   style={[
@@ -106,12 +110,12 @@ export default function PayOffLiabilitiesScreen() {
                     !affordable && styles.payBtnDisabled,
                   ]}
                   disabled={!affordable}
-                  onPress={() => onPay(r.key, r.title, amt)}
+                  onPress={() => onPay(r.key, t(r.titleKey), amt)}
                 >
                   <ThemedText type="defaultSemiBold" style={styles.payText}>
                     {affordable
-                      ? `Погасить · ${fmt(amt)}`
-                      : `Не хватает ${fmt(amt - p.cash)}`}
+                      ? t("payOff.payBtn", { amount: fmt(amt) })
+                      : t("payOff.notEnoughBy", { amount: fmt(amt - p.cash) })}
                   </ThemedText>
                 </TouchableOpacity>
               </View>
@@ -122,11 +126,11 @@ export default function PayOffLiabilitiesScreen() {
 
       {paid.length > 0 && (
         <ThemedView style={styles.card}>
-          <ThemedText type="subtitle">Уже погашены</ThemedText>
+          <ThemedText type="subtitle">{t("payOff.closedHeader")}</ThemedText>
           {paid.map((r) => (
             <View key={r.key} style={styles.row}>
-              <ThemedText style={styles.muted}>{r.title}</ThemedText>
-              <ThemedText style={styles.paidBadge}>✓ закрыт</ThemedText>
+              <ThemedText style={styles.muted}>{t(r.titleKey)}</ThemedText>
+              <ThemedText style={styles.paidBadge}>{t("payOff.closedBadge")}</ThemedText>
             </View>
           ))}
         </ThemedView>

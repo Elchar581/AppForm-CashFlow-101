@@ -1,10 +1,9 @@
 import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
@@ -14,6 +13,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { doodad } from "@/lib/events";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -27,7 +27,7 @@ export default function DoodadScreen() {
   const [amount, setAmount] = useState("");
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
   }, [slot]);
 
   if (!slot) return null;
@@ -37,11 +37,11 @@ export default function DoodadScreen() {
 
   const onSubmit = () => {
     if (!description.trim()) {
-      Alert.alert("Ошибка", "Опишите трату (например, “Шопинг”).");
+      alertModal(t("common.error"), "Опишите трату (например, “Шопинг”).");
       return;
     }
     if (!valid) {
-      Alert.alert("Ошибка", "Сумма должна быть > 0.");
+      alertModal(t("common.error"), "Сумма должна быть > 0.");
       return;
     }
     updatePlayer(slot.id, (s) => doodad(s, description.trim(), amountN));
@@ -53,9 +53,9 @@ export default function DoodadScreen() {
       <Stack.Screen options={{ title: t("actions.doodad") }} />
       <FormScroll>
       <ThemedView style={styles.card}>
-        <ThemedText type="defaultSemiBold">Описание</ThemedText>
+        <ThemedText type="defaultSemiBold">{t("forms.description")}</ThemedText>
         <ThemedInput
-          placeholder="Например, шопинг с подругой"
+          placeholder={t("doodad.descPlaceholder")}
           value={description}
           onChangeText={setDescription}
         />
@@ -68,11 +68,11 @@ export default function DoodadScreen() {
           onChangeText={setAmount}
         />
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сбережения сейчас</ThemedText>
+          <ThemedText style={styles.muted}>{t("forms.savingsNow")}</ThemedText>
           <ThemedText type="defaultSemiBold">{fmt(slot.player.cash)}</ThemedText>
         </View>
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>После списания</ThemedText>
+          <ThemedText style={styles.muted}>{t("forms.afterDeduction")}</ThemedText>
           <ThemedText
             type="defaultSemiBold"
             style={{

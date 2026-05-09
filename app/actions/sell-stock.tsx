@@ -1,6 +1,10 @@
 import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
 import { ThemedInput } from "@/components/themed-input";
@@ -9,6 +13,7 @@ import { ThemedView } from "@/components/themed-view";
 import { STOCK_BY_ID } from "@/lib/configs";
 import { sellStock } from "@/lib/events";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -25,7 +30,7 @@ export default function SellStockScreen() {
   const [price, setPrice] = useState("");
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
   }, [slot]);
 
   if (!slot || !stockId) {
@@ -48,15 +53,15 @@ export default function SellStockScreen() {
 
   const onSubmit = () => {
     if (!Number.isFinite(sharesN) || sharesN <= 0) {
-      Alert.alert("Ошибка", "Количество должно быть положительным.");
+      alertModal("Ошибка", "Количество должно быть положительным.");
       return;
     }
     if (sharesN > owned.shares) {
-      Alert.alert("Ошибка", `У вас только ${owned.shares} акций.`);
+      alertModal("Ошибка", `У вас только ${owned.shares} акций.`);
       return;
     }
     if (!Number.isFinite(priceN) || priceN < 0) {
-      Alert.alert("Ошибка", "Цена должна быть неотрицательной.");
+      alertModal("Ошибка", "Цена должна быть неотрицательной.");
       return;
     }
     updatePlayer(slot.id, (s) => sellStock(s, stockId, sharesN, priceN));

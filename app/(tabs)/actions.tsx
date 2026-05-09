@@ -1,11 +1,10 @@
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -21,6 +20,7 @@ import {
 import { RULES } from "@/lib/configs";
 import { addChild, exitRatRace, payday } from "@/lib/events";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -68,7 +68,7 @@ export default function ActionsScreen() {
   const { updatePlayer, resetPlayer } = useProfilesActions();
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
   }, [slot]);
 
   if (!slot) return null;
@@ -91,13 +91,13 @@ export default function ActionsScreen() {
 
   const onAddChild = () => {
     if (p.childrenCount >= RULES.maxChildren) {
-      Alert.alert(
+      alertModal(
         t("actions.childMaxTitle"),
         t("actions.childMaxText", { max: RULES.maxChildren }),
       );
       return;
     }
-    Alert.alert(t("actions.childAddTitle"), t("actions.childAddText"), [
+    alertModal(t("actions.childAddTitle"), t("actions.childAddText"), [
       { text: t("common.cancel"), style: "cancel" },
       {
         text: t("actions.childAddBtn"),
@@ -110,7 +110,7 @@ export default function ActionsScreen() {
     const passive = passiveIncome(p);
     const initial =
       Math.round(passive / 1000) * 1000 * RULES.fastTrack.passiveIncomeMultiplier;
-    Alert.alert(
+    alertModal(
       t("actions.exitConfirmTitle"),
       t("actions.exitConfirmText", {
         passive: fmt(passive),
@@ -129,7 +129,7 @@ export default function ActionsScreen() {
   };
 
   const onReset = () => {
-    Alert.alert(t("actions.resetTitle"), t("actions.resetText"), [
+    alertModal(t("actions.resetTitle"), t("actions.resetText"), [
       { text: t("common.cancel"), style: "cancel" },
       {
         text: t("actions.resetBtn"),

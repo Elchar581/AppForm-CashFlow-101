@@ -1,6 +1,10 @@
 import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
 import { ThemedInput } from "@/components/themed-input";
@@ -9,6 +13,7 @@ import { ThemedView } from "@/components/themed-view";
 import { RULES } from "@/lib/configs";
 import { repayBankLoan, takeBankLoan } from "@/lib/events";
 import { useT } from "@/store/locale";
+import { alertModal } from "@/store/alert";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -22,7 +27,7 @@ export default function BankLoanScreen() {
   const [amount, setAmount] = useState("");
 
   useEffect(() => {
-    if (!slot) router.replace("/");
+    if (!slot) router.replace("/profiles");
   }, [slot]);
 
   if (!slot) return null;
@@ -39,7 +44,7 @@ export default function BankLoanScreen() {
 
   const onSubmit = () => {
     if (!valid) {
-      Alert.alert(
+      alertModal(
         t("common.error"),
         t("bankLoan.errStep", { amount: fmt(activeStep) }),
       );
@@ -49,14 +54,14 @@ export default function BankLoanScreen() {
       updatePlayer(slot.id, (s) => takeBankLoan(s, amountN));
     } else {
       if (amountN > p.bankLoanAmount) {
-        Alert.alert(
+        alertModal(
           t("common.error"),
           t("bankLoan.errMaxRepay", { amount: fmt(p.bankLoanAmount) }),
         );
         return;
       }
       if (amountN > p.cash) {
-        Alert.alert(
+        alertModal(
           t("bankLoan.notEnough"),
           t("bankLoan.notEnoughText", { amount: fmt(p.cash) }),
         );
