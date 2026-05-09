@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { getProfession } from "@/lib/calculations";
+import { effectiveLiability, getProfession } from "@/lib/calculations";
 import { FAST_TRACK_BY_ID, STOCK_BY_ID } from "@/lib/configs";
 import { useActiveProfile } from "@/store/profiles";
 
@@ -62,14 +62,20 @@ export default function BalanceScreen() {
     0,
   );
 
+  const liabMortgage = effectiveLiability(p, prof, "mortgage");
+  const liabSchoolLoan = effectiveLiability(p, prof, "schoolLoan");
+  const liabCarLoan = effectiveLiability(p, prof, "carLoan");
+  const liabCreditCards = effectiveLiability(p, prof, "creditCards");
+  const liabOtherLoans = effectiveLiability(p, prof, "otherLoans");
+
   const totalAssetsCost =
     p.cash + stocksValueAtCost + realEstateTotalCost + businessTotalCost;
   const totalLiabilities =
-    prof.liabilities.mortgage +
-    prof.liabilities.schoolLoan +
-    prof.liabilities.carLoan +
-    prof.liabilities.creditCards +
-    prof.liabilities.otherLoans +
+    liabMortgage +
+    liabSchoolLoan +
+    liabCarLoan +
+    liabCreditCards +
+    liabOtherLoans +
     realEstateMortgageSum +
     businessLiabSum +
     p.bankLoanAmount;
@@ -167,26 +173,18 @@ export default function BalanceScreen() {
 
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Пассивы</ThemedText>
-        {prof.liabilities.mortgage > 0 && (
-          <Row label="Ипотека" value={prof.liabilities.mortgage} />
+        {liabMortgage > 0 && <Row label="Ипотека" value={liabMortgage} />}
+        {liabSchoolLoan > 0 && (
+          <Row label="Кредит на образование" value={liabSchoolLoan} />
         )}
-        {prof.liabilities.schoolLoan > 0 && (
-          <Row
-            label="Кредит на образование"
-            value={prof.liabilities.schoolLoan}
-          />
+        {liabCarLoan > 0 && (
+          <Row label="Кредит на автомобиль" value={liabCarLoan} />
         )}
-        {prof.liabilities.carLoan > 0 && (
-          <Row label="Кредит на автомобиль" value={prof.liabilities.carLoan} />
+        {liabCreditCards > 0 && (
+          <Row label="Долг по кредитной карточке" value={liabCreditCards} />
         )}
-        {prof.liabilities.creditCards > 0 && (
-          <Row
-            label="Долг по кредитной карточке"
-            value={prof.liabilities.creditCards}
-          />
-        )}
-        {prof.liabilities.otherLoans > 0 && (
-          <Row label="Мелкие кредиты" value={prof.liabilities.otherLoans} />
+        {liabOtherLoans > 0 && (
+          <Row label="Мелкие кредиты" value={liabOtherLoans} />
         )}
         {realEstateMortgageSum > 0 && (
           <Row label="Ипотека недвижимости" value={realEstateMortgageSum} />

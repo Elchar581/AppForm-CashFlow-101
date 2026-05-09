@@ -1,4 +1,4 @@
-import { FAST_TRACK_BY_ID, RULES, STOCK_BY_ID } from "./configs";
+import { FAST_TRACK_BY_ID, PROFESSION_BY_ID, RULES, STOCK_BY_ID } from "./configs";
 import type {
   FastTrackHolding,
   GameEvent,
@@ -6,6 +6,7 @@ import type {
   OwnedRealEstate,
   OwnedStock,
   PlayerState,
+  ProfessionLiabilityKey,
 } from "./types";
 
 // Локальный пересчёт пассивного дохода — чтобы не создавать импорт из calculations.ts
@@ -60,6 +61,43 @@ export function doodad(
       kind: "doodad",
       ts: Date.now(),
       description,
+      amount,
+    }),
+  };
+}
+
+// ───────── закрытие пассивов профессии ─────────
+
+/**
+ * Полностью погасить статичный пассив профессии (ипотека / кредит на образование / авто и т.д.).
+ * Списывает сумму пассива с кэша, помечает пассив как закрытый — соответствующая
+ * строка ежемесячного расхода обнуляется.
+ *
+ * Только в фазе крысиных гонок. Возвращает p без изменений если:
+ * - игрок на Большом круге
+ * - пассив уже погашен
+ * - на счету не хватает денег
+ */
+export function payOffLiability(
+  p: PlayerState,
+  key: ProfessionLiabilityKey,
+): PlayerState {
+  if (p.phase !== "ratRace") return p;
+  const prof = PROFESSION_BY_ID[p.professionId];
+  if (!prof) return p;
+  const already = p.paidOffLiabilities ?? [];
+  if (already.includes(key)) return p;
+  const amount = prof.liabilities[key];
+  if (amount <= 0) return p;
+  if (amount > p.cash) return p;
+  return {
+    ...p,
+    cash: p.cash - amount,
+    paidOffLiabilities: [...already, key],
+    history: withEvent(p, {
+      kind: "payOffLiability",
+      ts: Date.now(),
+      key,
       amount,
     }),
   };

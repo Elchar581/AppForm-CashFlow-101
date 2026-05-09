@@ -11,6 +11,14 @@ export type {
 
 export type GamePhase = "ratRace" | "fastTrack";
 
+/** Ключи статичных пассивов из карточки профессии (которые можно «закрыть» досрочно). */
+export type ProfessionLiabilityKey =
+  | "mortgage"
+  | "schoolLoan"
+  | "carLoan"
+  | "creditCards"
+  | "otherLoans";
+
 export type OwnedStock = {
   id: string;
   templateId: string;   // ссылка на StockTemplate.id
@@ -55,6 +63,7 @@ export type GameEvent =
   | { kind: "addChild";        ts: number }
   | { kind: "takeBankLoan";    ts: number; amount: number }
   | { kind: "repayBankLoan";   ts: number; amount: number }
+  | { kind: "payOffLiability"; ts: number; key: ProfessionLiabilityKey; amount: number }
   | { kind: "doodad";          ts: number; description: string; amount: number }
   | { kind: "payday";          ts: number; cashflow: number }
   | { kind: "downsize";        ts: number }
@@ -80,6 +89,9 @@ export type PlayerState = {
   realEstate: OwnedRealEstate[];
   businesses: OwnedBusiness[];
   bankLoanAmount: number;                  // тело банк. кредита (кратно rules.bankLoan.step)
+
+  /** Какие статичные пассивы профессии уже погашены (полностью). */
+  paidOffLiabilities?: ProfessionLiabilityKey[];
 
   fastTrack?: FastTrackState;
   history: GameEvent[];

@@ -201,84 +201,104 @@ export default function ActionsScreen() {
             subtitle={`Куплено: ${p.fastTrack?.holdings.length ?? 0} · Прибавка к потоку: ${fmt(p.fastTrack?.cashflowDeltaSinceStart ?? 0)}`}
             onPress={() => router.push("/actions/fast-track-buy")}
           />
+          <Divider />
+          <ActionRow
+            title="📋 Бланк крысиных гонок"
+            subtitle="Снимок предыдущего этапа: доходы, расходы, пассивы"
+            onPress={() => router.push("/rat-race-snapshot")}
+          />
         </ThemedView>
       )}
 
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Сделки</ThemedText>
-        <ActionRow
-          title="Купить акции"
-          subtitle="Из каталога: MYT4U, OK4U, ON2U, GRO4US, CD, 2BIG"
-          onPress={() => router.push("/actions/buy-stock")}
-        />
-        <Divider />
-        <ActionRow
-          title="Продать акции"
-          subtitle={
-            p.stocks.length === 0
-              ? "Нет позиций"
-              : `${p.stocks.length} позиций`
-          }
-          onPress={() => router.push("/actions/sell-stock")}
-          disabled={p.stocks.length === 0}
-        />
-        <Divider />
-        <ActionRow
-          title="Купить недвижимость"
-          subtitle="Малая или крупная сделка"
-          onPress={() => router.push("/actions/buy-real-estate")}
-        />
-        <Divider />
-        <ActionRow
-          title="Продать недвижимость"
-          subtitle={
-            p.realEstate.length === 0
-              ? "Нет объектов"
-              : `${p.realEstate.length} объектов`
-          }
-          onPress={() => router.push("/actions/sell-real-estate")}
-          disabled={p.realEstate.length === 0}
-        />
-        <Divider />
-        <ActionRow
-          title="Купить бизнес"
-          onPress={() => router.push("/actions/buy-business")}
-        />
-        <Divider />
-        <ActionRow
-          title="Продать бизнес"
-          subtitle={
-            p.businesses.length === 0
-              ? "Нет бизнесов"
-              : `${p.businesses.length} бизнесов`
-          }
-          onPress={() => router.push("/actions/sell-business")}
-          disabled={p.businesses.length === 0}
-        />
-      </ThemedView>
+      {!isFT && (
+        <>
+          <ThemedView style={styles.card}>
+            <ThemedText type="subtitle">Сделки</ThemedText>
+            <ActionRow
+              title="Купить акции"
+              subtitle="Из каталога: MYT4U, OK4U, ON2U, GRO4US, CD, 2BIG"
+              onPress={() => router.push("/actions/buy-stock")}
+            />
+            <Divider />
+            <ActionRow
+              title="Продать акции"
+              subtitle={
+                p.stocks.length === 0
+                  ? "Нет позиций"
+                  : `${p.stocks.length} позиций`
+              }
+              onPress={() => router.push("/actions/sell-stock")}
+              disabled={p.stocks.length === 0}
+            />
+            <Divider />
+            <ActionRow
+              title="Купить недвижимость"
+              subtitle="Малая или крупная сделка"
+              onPress={() => router.push("/actions/buy-real-estate")}
+            />
+            <Divider />
+            <ActionRow
+              title="Продать недвижимость"
+              subtitle={
+                p.realEstate.length === 0
+                  ? "Нет объектов"
+                  : `${p.realEstate.length} объектов`
+              }
+              onPress={() => router.push("/actions/sell-real-estate")}
+              disabled={p.realEstate.length === 0}
+            />
+            <Divider />
+            <ActionRow
+              title="Купить бизнес"
+              onPress={() => router.push("/actions/buy-business")}
+            />
+            <Divider />
+            <ActionRow
+              title="Продать бизнес"
+              subtitle={
+                p.businesses.length === 0
+                  ? "Нет бизнесов"
+                  : `${p.businesses.length} бизнесов`
+              }
+              onPress={() => router.push("/actions/sell-business")}
+              disabled={p.businesses.length === 0}
+            />
+          </ThemedView>
 
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Семья</ThemedText>
-        <ActionRow
-          title="Добавить ребёнка"
-          subtitle={`Сейчас детей: ${p.childrenCount} / ${RULES.maxChildren}`}
-          onPress={onAddChild}
-          disabled={p.childrenCount >= RULES.maxChildren}
-        />
-      </ThemedView>
+          <ThemedView style={styles.card}>
+            <ThemedText type="subtitle">Семья</ThemedText>
+            <ActionRow
+              title="Добавить ребёнка"
+              subtitle={`Сейчас детей: ${p.childrenCount} / ${RULES.maxChildren}`}
+              onPress={onAddChild}
+              disabled={p.childrenCount >= RULES.maxChildren}
+            />
+          </ThemedView>
+        </>
+      )}
 
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Финансы</ThemedText>
-        <ActionRow
-          title="Кредит банка"
-          subtitle={
-            p.bankLoanAmount > 0
-              ? `Текущий долг: ${fmt(p.bankLoanAmount)}`
-              : `Кратно ${fmt(RULES.bankLoan.step)}`
-          }
-          onPress={() => router.push("/actions/bank-loan")}
-        />
-        <Divider />
+        {!isFT && (
+          <>
+            <ActionRow
+              title="Кредит банка"
+              subtitle={
+                p.bankLoanAmount > 0
+                  ? `Текущий долг: ${fmt(p.bankLoanAmount)}`
+                  : `Кратно ${fmt(RULES.bankLoan.step)}`
+              }
+              onPress={() => router.push("/actions/bank-loan")}
+            />
+            <Divider />
+            <ActionRow
+              title="Закрытие пассивов"
+              subtitle="Полностью погасить ипотеку / кредиты профессии"
+              onPress={() => router.push("/actions/pay-off-liabilities")}
+            />
+            <Divider />
+          </>
+        )}
         <ActionRow
           title="Мелкая трата (Doodad)"
           subtitle="Списать из сбережений по карточке"

@@ -1,11 +1,10 @@
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 
-import { FastTrackView } from "@/components/fast-track-view";
 import { RatRaceView } from "@/components/rat-race-view";
 import { useActiveProfile } from "@/store/profiles";
 
-export default function StatementScreen() {
+export default function RatRaceSnapshotScreen() {
   const slot = useActiveProfile();
 
   useEffect(() => {
@@ -13,8 +12,5 @@ export default function StatementScreen() {
   }, [slot]);
 
   if (!slot) return null;
-  if (slot.player.phase === "fastTrack") {
-    return <FastTrackView player={slot.player} />;
-  }
-  return <RatRaceView player={slot.player} />;
+  return <RatRaceView player={slot.player} snapshot />;
 }

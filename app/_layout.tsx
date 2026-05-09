@@ -50,6 +50,14 @@ export default function RootLayout() {
           name="actions/fast-track-buy"
           options={{ title: "Купить бизнес · Большой круг" }}
         />
+        <Stack.Screen
+          name="actions/pay-off-liabilities"
+          options={{ title: "Закрытие пассивов" }}
+        />
+        <Stack.Screen
+          name="rat-race-snapshot"
+          options={{ title: "Бланк крысиных гонок" }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

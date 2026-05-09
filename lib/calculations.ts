@@ -1,5 +1,9 @@
 import { PROFESSION_BY_ID, RULES, STOCK_BY_ID } from "./configs";
-import type { PlayerState, Profession } from "./types";
+import type {
+  PlayerState,
+  Profession,
+  ProfessionLiabilityKey,
+} from "./types";
 
 export function getProfession(id: string): Profession {
   const p = PROFESSION_BY_ID[id];
@@ -18,16 +22,41 @@ export function bankLoanMonthlyPayment(p: PlayerState): number {
   return blocks * RULES.bankLoan.monthlyPaymentPer1000;
 }
 
-/** Сумма всех статей расхода: статичные из профессии + дети + кредит банка. */
+export function isLiabilityPaidOff(
+  p: PlayerState,
+  key: ProfessionLiabilityKey,
+): boolean {
+  return (p.paidOffLiabilities ?? []).includes(key);
+}
+
+/** Эффективная сумма пассива (0 если погашен досрочно). */
+export function effectiveLiability(
+  p: PlayerState,
+  prof: Profession,
+  key: ProfessionLiabilityKey,
+): number {
+  return isLiabilityPaidOff(p, key) ? 0 : prof.liabilities[key];
+}
+
+/** Эффективный ежемесячный расход (0 если соответствующий пассив погашен). */
+export function effectiveExpense(
+  p: PlayerState,
+  prof: Profession,
+  key: ProfessionLiabilityKey,
+): number {
+  return isLiabilityPaidOff(p, key) ? 0 : prof.expenses[key];
+}
+
+/** Сумма всех статей расхода: статичные из профессии (с учётом погашений) + дети + кредит банка. */
 export function totalExpenses(p: PlayerState, prof: Profession): number {
   const e = prof.expenses;
   return (
     e.taxes +
-    e.mortgage +
-    e.schoolLoan +
-    e.carLoan +
-    e.creditCards +
-    e.otherLoans +
+    effectiveExpense(p, prof, "mortgage") +
+    effectiveExpense(p, prof, "schoolLoan") +
+    effectiveExpense(p, prof, "carLoan") +
+    effectiveExpense(p, prof, "creditCards") +
+    effectiveExpense(p, prof, "otherLoans") +
     e.other +
     childrenExpense(p, prof) +
     bankLoanMonthlyPayment(p)
