@@ -195,6 +195,7 @@ export default {
     amount: "Сумма",
     description: "Описание",
     salePrice: "Цена продажи",
+    salePriceFromMarket: "Например, по карте Market",
     youGet: "Получите",
     getMinusMortgage: "Получите (за вычетом ипотеки)",
     getMinusBizLiab: "Получите (за вычетом пассива)",

@@ -40,6 +40,16 @@ export default function WelcomeScreen() {
 
         <View style={styles.controls}>
           <TouchableOpacity
+            style={styles.playBtn}
+            onPress={() => router.push("/profiles")}
+            activeOpacity={0.85}
+          >
+            <ThemedText type="defaultSemiBold" style={styles.playText}>
+              ▶  {t("welcome.play")}
+            </ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={styles.langBtn}
             onPress={() => setLangModalVisible(true)}
             activeOpacity={0.7}
@@ -48,16 +58,6 @@ export default function WelcomeScreen() {
               🌐 {LOCALE_LABELS[currentLocale]}
             </ThemedText>
             <ThemedText style={styles.langChevron}>›</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.playBtn}
-            onPress={() => router.push("/profiles")}
-            activeOpacity={0.85}
-          >
-            <ThemedText type="defaultSemiBold" style={styles.playText}>
-              ▶  {t("welcome.play")}
-            </ThemedText>
           </TouchableOpacity>
         </View>
       </ThemedView>

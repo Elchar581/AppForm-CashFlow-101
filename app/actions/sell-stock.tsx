@@ -53,15 +53,15 @@ export default function SellStockScreen() {
 
   const onSubmit = () => {
     if (!Number.isFinite(sharesN) || sharesN <= 0) {
-      alertModal("Ошибка", "Количество должно быть положительным.");
+      alertModal(t("common.error"), "");
       return;
     }
     if (sharesN > owned.shares) {
-      alertModal("Ошибка", `У вас только ${owned.shares} акций.`);
+      alertModal(t("common.error"), "");
       return;
     }
     if (!Number.isFinite(priceN) || priceN < 0) {
-      alertModal("Ошибка", "Цена должна быть неотрицательной.");
+      alertModal(t("common.error"), "");
       return;
     }
     updatePlayer(slot.id, (s) => sellStock(s, stockId, sharesN, priceN));
@@ -75,8 +75,8 @@ export default function SellStockScreen() {
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">{t("sellStock.whichToSell")}</ThemedText>
         {slot.player.stocks.map((s) => {
-          const t = STOCK_BY_ID[s.templateId];
-          const ticker = t?.ticker ?? s.templateId;
+          const tpl = STOCK_BY_ID[s.templateId];
+          const ticker = tpl?.ticker ?? s.templateId;
           return (
             <TouchableOpacity
               key={s.id}
@@ -88,7 +88,10 @@ export default function SellStockScreen() {
             >
               <ThemedText type="defaultSemiBold">{ticker}</ThemedText>
               <ThemedText style={styles.muted}>
-                {s.shares} шт. · купили по {fmt(s.buyPrice)}
+                {t("sellStock.sharesOwned", {
+                  count: s.shares,
+                  price: fmt(s.buyPrice),
+                })}
               </ThemedText>
             </TouchableOpacity>
           );
@@ -97,30 +100,30 @@ export default function SellStockScreen() {
 
       <ThemedView style={styles.card}>
         <ThemedText type="defaultSemiBold">
-          Продать акций (макс {owned.shares})
+          {t("sellStock.sharesMax", { count: owned.shares })}
         </ThemedText>
         <ThemedInput
           keyboardType="number-pad"
-          placeholder="Количество"
+          placeholder={t("sellStock.countPlaceholder")}
           value={shares}
           onChangeText={setShares}
         />
         <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Цена продажи за акцию
+          {t("sellStock.pricePerSell")}
         </ThemedText>
         <ThemedInput
           keyboardType="numeric"
-          placeholder="Из карточки рынка"
+          placeholder={t("sellStock.fromMarket")}
           value={price}
           onChangeText={setPrice}
         />
         <View style={styles.row}>
-          <ThemedText style={styles.muted}>Получите</ThemedText>
+          <ThemedText style={styles.muted}>{t("forms.youGet")}</ThemedText>
           <ThemedText type="defaultSemiBold">{fmt(proceeds)}</ThemedText>
         </View>
         <View style={styles.row}>
           <ThemedText style={styles.muted}>
-            Прибыль/убыток к цене покупки
+            {t("sellStock.profitLoss")}
           </ThemedText>
           <ThemedText
             type="defaultSemiBold"

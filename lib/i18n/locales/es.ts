@@ -195,6 +195,7 @@ export default {
     amount: "Cantidad",
     description: "Descripción",
     salePrice: "Precio de venta",
+    salePriceFromMarket: "p. ej. de una tarjeta Market",
     youGet: "Recibes",
     getMinusMortgage: "Recibes (menos hipoteca)",
     getMinusBizLiab: "Recibes (menos pasivo)",

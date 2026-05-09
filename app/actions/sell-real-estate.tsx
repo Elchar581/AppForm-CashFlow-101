@@ -47,7 +47,7 @@ export default function SellRealEstateScreen() {
 
   const onSubmit = () => {
     if (!Number.isFinite(priceN) || priceN < 0) {
-      alertModal("Ошибка", "Введите цену продажи (≥ 0).");
+      alertModal(t("common.error"), "");
       return;
     }
     updatePlayer(slot.id, (s) => sellRealEstate(s, assetId, priceN));
@@ -59,7 +59,7 @@ export default function SellRealEstateScreen() {
       <Stack.Screen options={{ title: t("actions.sellRealEstate") }} />
       <FormScroll>
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Какой объект продать</ThemedText>
+        <ThemedText type="subtitle">{t("sellRE.whichToSell")}</ThemedText>
         {slot.player.realEstate.map((r) => (
           <TouchableOpacity
             key={r.id}
@@ -68,23 +68,28 @@ export default function SellRealEstateScreen() {
           >
             <ThemedText type="defaultSemiBold">{r.name}</ThemedText>
             <ThemedText style={styles.muted}>
-              Цена {fmt(r.price)} · ипотека {fmt(r.mortgage)} · поток{" "}
-              {fmt(r.monthlyCashflow)}
+              {t("sellRE.details", {
+                price: fmt(r.price),
+                mortgage: fmt(r.mortgage),
+                flow: fmt(r.monthlyCashflow),
+              })}
             </ThemedText>
           </TouchableOpacity>
         ))}
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="defaultSemiBold">Цена продажи</ThemedText>
+        <ThemedText type="defaultSemiBold">{t("forms.salePrice")}</ThemedText>
         <ThemedInput
           keyboardType="numeric"
-          placeholder="Например, по карте Market"
+          placeholder={t("forms.salePriceFromMarket")}
           value={salePrice}
           onChangeText={setSalePrice}
         />
         <View style={styles.summaryRow}>
-          <ThemedText style={styles.muted}>Получите (за вычетом ипотеки)</ThemedText>
+          <ThemedText style={styles.muted}>
+            {t("forms.getMinusMortgage")}
+          </ThemedText>
           <ThemedText
             type="defaultSemiBold"
             style={{ color: proceeds >= 0 ? "#2e7d32" : "#c62828" }}
@@ -93,7 +98,9 @@ export default function SellRealEstateScreen() {
           </ThemedText>
         </View>
         <View style={styles.summaryRow}>
-          <ThemedText style={styles.muted}>Сбережения после</ThemedText>
+          <ThemedText style={styles.muted}>
+            {t("forms.savingsAfter")}
+          </ThemedText>
           <ThemedText type="defaultSemiBold">
             {fmt(slot.player.cash + proceeds)}
           </ThemedText>

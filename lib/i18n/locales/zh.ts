@@ -189,6 +189,7 @@ export default {
     amount: "金额",
     description: "描述",
     salePrice: "出售价格",
+    salePriceFromMarket: "如:市场卡",
     youGet: "可得",
     getMinusMortgage: "可得(扣除按揭)",
     getMinusBizLiab: "可得(扣除负债)",

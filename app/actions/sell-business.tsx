@@ -47,7 +47,7 @@ export default function SellBusinessScreen() {
 
   const onSubmit = () => {
     if (!Number.isFinite(priceN) || priceN < 0) {
-      alertModal("Ошибка", "Введите цену продажи (≥ 0).");
+      alertModal(t("common.error"), "");
       return;
     }
     updatePlayer(slot.id, (s) => sellBusiness(s, assetId, priceN));
@@ -59,7 +59,7 @@ export default function SellBusinessScreen() {
       <Stack.Screen options={{ title: t("actions.sellBusiness") }} />
       <FormScroll>
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Какой бизнес продать</ThemedText>
+        <ThemedText type="subtitle">{t("sellBiz.whichToSell")}</ThemedText>
         {slot.player.businesses.map((b) => (
           <TouchableOpacity
             key={b.id}
@@ -68,15 +68,18 @@ export default function SellBusinessScreen() {
           >
             <ThemedText type="defaultSemiBold">{b.name}</ThemedText>
             <ThemedText style={styles.muted}>
-              Цена {fmt(b.price)} · пассив {fmt(b.liability)} · поток{" "}
-              {fmt(b.monthlyCashflow)}
+              {t("sellBiz.details", {
+                price: fmt(b.price),
+                liab: fmt(b.liability),
+                flow: fmt(b.monthlyCashflow),
+              })}
             </ThemedText>
           </TouchableOpacity>
         ))}
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="defaultSemiBold">Цена продажи</ThemedText>
+        <ThemedText type="defaultSemiBold">{t("forms.salePrice")}</ThemedText>
         <ThemedInput
           keyboardType="numeric"
           value={salePrice}
@@ -84,7 +87,7 @@ export default function SellBusinessScreen() {
         />
         <View style={styles.summaryRow}>
           <ThemedText style={styles.muted}>
-            Получите (за вычетом пассива)
+            {t("forms.getMinusBizLiab")}
           </ThemedText>
           <ThemedText
             type="defaultSemiBold"
@@ -94,7 +97,9 @@ export default function SellBusinessScreen() {
           </ThemedText>
         </View>
         <View style={styles.summaryRow}>
-          <ThemedText style={styles.muted}>Сбережения после</ThemedText>
+          <ThemedText style={styles.muted}>
+            {t("forms.savingsAfter")}
+          </ThemedText>
           <ThemedText type="defaultSemiBold">
             {fmt(slot.player.cash + proceeds)}
           </ThemedText>
