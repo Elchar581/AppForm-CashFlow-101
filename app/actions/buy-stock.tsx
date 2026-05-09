@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -8,12 +8,14 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { STOCKS } from "@/lib/configs";
 import { buyStock } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function BuyStockScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [templateId, setTemplateId] = useState(STOCKS[0].id);
@@ -29,24 +31,25 @@ export default function BuyStockScreen() {
   const sharesN = parseInt(shares, 10);
   const priceN = parseFloat(price.replace(",", "."));
   const cost =
-    Number.isFinite(sharesN) && Number.isFinite(priceN)
-      ? sharesN * priceN
-      : 0;
+    Number.isFinite(sharesN) && Number.isFinite(priceN) ? sharesN * priceN : 0;
   const tpl = STOCKS.find((s) => s.id === templateId);
 
   const onSubmit = () => {
     if (!Number.isFinite(sharesN) || sharesN <= 0) {
-      Alert.alert("Ошибка", "Количество акций должно быть положительным числом.");
+      Alert.alert(t("common.error"), "Количество акций должно быть > 0.");
       return;
     }
     if (!Number.isFinite(priceN) || priceN < 0) {
-      Alert.alert("Ошибка", "Цена должна быть неотрицательным числом.");
+      Alert.alert(t("common.error"), "Цена должна быть ≥ 0.");
       return;
     }
     if (cost > slot.player.cash) {
       Alert.alert(
-        "Недостаточно средств",
-        `Нужно ${fmt(cost)}, доступно ${fmt(slot.player.cash)}.`,
+        t("forms.notEnough"),
+        t("forms.notEnoughText", {
+          amount: fmt(cost),
+          cash: fmt(slot.player.cash),
+        }),
       );
       return;
     }
@@ -55,80 +58,89 @@ export default function BuyStockScreen() {
   };
 
   return (
-    <FormScroll>
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Тикер</ThemedText>
-        <View style={styles.tickerRow}>
-          {STOCKS.map((s) => (
-            <TouchableOpacity
-              key={s.id}
-              style={[
-                styles.tickerBtn,
-                templateId === s.id && styles.tickerBtnActive,
-              ]}
-              onPress={() => setTemplateId(s.id)}
-            >
-              <ThemedText
-                type={templateId === s.id ? "defaultSemiBold" : "default"}
+    <>
+      <Stack.Screen options={{ title: t("actions.buyStock") }} />
+      <FormScroll>
+        <ThemedView style={styles.card}>
+          <ThemedText type="subtitle">{t("buyStock.ticker")}</ThemedText>
+          <View style={styles.tickerRow}>
+            {STOCKS.map((s) => (
+              <TouchableOpacity
+                key={s.id}
+                style={[
+                  styles.tickerBtn,
+                  templateId === s.id && styles.tickerBtnActive,
+                ]}
+                onPress={() => setTemplateId(s.id)}
               >
-                {s.ticker}
-              </ThemedText>
-            </TouchableOpacity>
-          ))}
-        </View>
-        {tpl?.hasDeposit ? (
-          <ThemedText style={styles.muted}>
-            Дивиденд: {fmt(tpl.dividendPerShare)} в мес. за акцию
+                <ThemedText
+                  type={templateId === s.id ? "defaultSemiBold" : "default"}
+                >
+                  {s.ticker}
+                </ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {tpl?.hasDeposit ? (
+            <ThemedText style={styles.muted}>
+              {t("buyStock.hasDividend", {
+                amount: fmt(tpl.dividendPerShare),
+              })}
+            </ThemedText>
+          ) : (
+            <ThemedText style={styles.muted}>
+              {t("buyStock.noDividend")}
+            </ThemedText>
+          )}
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">
+            {t("buyStock.sharesCount")}
           </ThemedText>
-        ) : (
-          <ThemedText style={styles.muted}>
-            Без дивидендов — прибыль только от роста цены при продаже
+          <ThemedInput
+            keyboardType="number-pad"
+            placeholder={t("buyStock.sharesPlaceholder")}
+            value={shares}
+            onChangeText={setShares}
+          />
+
+          <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
+            {t("buyStock.pricePerShare")}
           </ThemedText>
-        )}
-      </ThemedView>
+          <ThemedInput
+            keyboardType="numeric"
+            placeholder={t("forms.priceFromCard")}
+            value={price}
+            onChangeText={setPrice}
+          />
 
-      <ThemedView style={styles.card}>
-        <ThemedText type="defaultSemiBold">Количество акций</ThemedText>
-        <ThemedInput
-          keyboardType="number-pad"
-          placeholder="Например, 100"
-          value={shares}
-          onChangeText={setShares}
-        />
+          <View style={styles.row}>
+            <ThemedText style={styles.muted}>{t("buyStock.costSum")}</ThemedText>
+            <ThemedText type="defaultSemiBold">{fmt(cost)}</ThemedText>
+          </View>
+          <View style={styles.row}>
+            <ThemedText style={styles.muted}>
+              {t("forms.savingsAfter")}
+            </ThemedText>
+            <ThemedText
+              type="defaultSemiBold"
+              style={{
+                color: slot.player.cash - cost < 0 ? "#c62828" : undefined,
+              }}
+            >
+              {fmt(slot.player.cash - cost)}
+            </ThemedText>
+          </View>
+        </ThemedView>
 
-        <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Цена за акцию
-        </ThemedText>
-        <ThemedInput
-          keyboardType="numeric"
-          placeholder="Из карточки сделки"
-          value={price}
-          onChangeText={setPrice}
-        />
-
-        <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сумма покупки</ThemedText>
-          <ThemedText type="defaultSemiBold">{fmt(cost)}</ThemedText>
-        </View>
-        <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сбережения после</ThemedText>
-          <ThemedText
-            type="defaultSemiBold"
-            style={{
-              color: slot.player.cash - cost < 0 ? "#c62828" : undefined,
-            }}
-          >
-            {fmt(slot.player.cash - cost)}
+        <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
+          <ThemedText type="defaultSemiBold" style={styles.submitText}>
+            {t("forms.btnBuy")}
           </ThemedText>
-        </View>
-      </ThemedView>
-
-      <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
-        <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          Купить
-        </ThemedText>
-      </TouchableOpacity>
-    </FormScroll>
+        </TouchableOpacity>
+      </FormScroll>
+    </>
   );
 }
 

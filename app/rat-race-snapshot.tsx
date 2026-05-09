@@ -1,10 +1,12 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect } from "react";
 
 import { RatRaceView } from "@/components/rat-race-view";
+import { useT } from "@/store/locale";
 import { useActiveProfile } from "@/store/profiles";
 
 export default function RatRaceSnapshotScreen() {
+  const t = useT();
   const slot = useActiveProfile();
 
   useEffect(() => {
@@ -12,5 +14,10 @@ export default function RatRaceSnapshotScreen() {
   }, [slot]);
 
   if (!slot) return null;
-  return <RatRaceView player={slot.player} snapshot />;
+  return (
+    <>
+      <Stack.Screen options={{ title: t("phase.snapshot") }} />
+      <RatRaceView player={slot.player} snapshot />
+    </>
+  );
 }

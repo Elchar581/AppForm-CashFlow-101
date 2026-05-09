@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -13,12 +13,14 @@ import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { doodad } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function DoodadScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [description, setDescription] = useState("");
@@ -47,7 +49,9 @@ export default function DoodadScreen() {
   };
 
   return (
-    <FormScroll>
+    <>
+      <Stack.Screen options={{ title: t("actions.doodad") }} />
+      <FormScroll>
       <ThemedView style={styles.card}>
         <ThemedText type="defaultSemiBold">Описание</ThemedText>
         <ThemedInput
@@ -85,10 +89,11 @@ export default function DoodadScreen() {
 
       <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
         <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          Списать
+          {t("forms.btnDeduct")}
         </ThemedText>
       </TouchableOpacity>
     </FormScroll>
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect } from "react";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -8,6 +8,7 @@ import { ThemedView } from "@/components/themed-view";
 import { getProfession, isLiabilityPaidOff } from "@/lib/calculations";
 import { payOffLiability } from "@/lib/events";
 import type { ProfessionLiabilityKey } from "@/lib/types";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -22,6 +23,7 @@ const ROWS: { key: ProfessionLiabilityKey; title: string; expenseLabel: string }
 ];
 
 export default function PayOffLiabilitiesScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
 
@@ -62,7 +64,9 @@ export default function PayOffLiabilitiesScreen() {
   const paid = ROWS.filter((r) => isLiabilityPaidOff(p, r.key));
 
   return (
-    <FormScroll>
+    <>
+      <Stack.Screen options={{ title: t("actions.payOffLiab") }} />
+      <FormScroll>
       <ThemedView style={styles.summary}>
         <View style={styles.row}>
           <ThemedText style={styles.muted}>Сбережения</ThemedText>
@@ -128,6 +132,7 @@ export default function PayOffLiabilitiesScreen() {
         </ThemedView>
       )}
     </FormScroll>
+    </>
   );
 }
 

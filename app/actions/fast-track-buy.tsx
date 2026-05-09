@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -7,12 +7,14 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { FAST_TRACK } from "@/lib/configs";
 import { buyFastTrackBusiness } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function FastTrackBuyScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [businessId, setBusinessId] = useState<string | null>(null);
@@ -47,7 +49,9 @@ export default function FastTrackBuyScreen() {
   };
 
   return (
-    <FormScroll>
+    <>
+      <Stack.Screen options={{ title: t("actions.ftBuyBtn") }} />
+      <FormScroll>
       <ThemedView style={styles.summary}>
         <View style={styles.row}>
           <ThemedText style={styles.muted}>Сбережения</ThemedText>
@@ -80,7 +84,7 @@ export default function FastTrackBuyScreen() {
                   style={{ flex: 1 }}
                   numberOfLines={2}
                 >
-                  {b.name}
+                  {t(`fastTrackBusinesses.${b.id}`, { defaultValue: b.name })}
                 </ThemedText>
                 {alreadyBought ? (
                   <ThemedText style={styles.boughtBadge}>✓ куплен</ThemedText>
@@ -161,10 +165,11 @@ export default function FastTrackBuyScreen() {
         disabled={!businessId}
       >
         <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          Купить
+          {t("forms.btnBuy")}
         </ThemedText>
       </TouchableOpacity>
     </FormScroll>
+    </>
   );
 }
 

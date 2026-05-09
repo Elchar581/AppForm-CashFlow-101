@@ -1,25 +1,21 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
-
 import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { STOCK_BY_ID } from "@/lib/configs";
 import { sellStock } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function SellStockScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [stockId, setStockId] = useState<string | null>(
@@ -68,9 +64,11 @@ export default function SellStockScreen() {
   };
 
   return (
-    <FormScroll>
+    <>
+      <Stack.Screen options={{ title: t("actions.sellStock") }} />
+      <FormScroll>
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Какую позицию продать</ThemedText>
+        <ThemedText type="subtitle">{t("sellStock.whichToSell")}</ThemedText>
         {slot.player.stocks.map((s) => {
           const t = STOCK_BY_ID[s.templateId];
           const ticker = t?.ticker ?? s.templateId;
@@ -139,10 +137,11 @@ export default function SellStockScreen() {
 
       <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
         <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          Продать
+          {t("forms.btnSell")}
         </ThemedText>
       </TouchableOpacity>
-    </FormScroll>
+      </FormScroll>
+    </>
   );
 }
 

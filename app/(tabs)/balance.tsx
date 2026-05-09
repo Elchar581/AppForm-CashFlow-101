@@ -28,7 +28,7 @@ function Row({
   const s = muted ? styles.muted : undefined;
   return (
     <View style={styles.row}>
-      <ThemedText type={ttype} style={s}>
+      <ThemedText type={ttype} style={[s, styles.rowLabel]}>
         {label}
       </ThemedText>
       <ThemedText type={ttype} style={s}>
@@ -170,7 +170,9 @@ export default function BalanceScreen() {
             </ThemedText>
             {p.fastTrack.holdings.map((h) => {
               const tpl = FAST_TRACK_BY_ID[h.businessId];
-              const name = tpl?.name ?? h.businessId;
+              const name = t(`fastTrackBusinesses.${h.businessId}`, {
+                defaultValue: tpl?.name ?? h.businessId,
+              });
               return (
                 <Row
                   key={h.id}
@@ -245,7 +247,13 @@ const styles = StyleSheet.create({
   },
   section: { gap: 4, marginTop: 4 },
   sectionTitle: { opacity: 0.7, fontWeight: "600", marginTop: 4 },
-  row: { flexDirection: "row", justifyContent: "space-between" },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  rowLabel: { flex: 1, flexShrink: 1 },
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: "rgba(127,127,127,0.3)",

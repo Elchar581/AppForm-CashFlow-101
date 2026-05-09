@@ -1,25 +1,21 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { FormScroll } from "@/components/form-scroll";
-
 import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { RULES } from "@/lib/configs";
 import { repayBankLoan, takeBankLoan } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function BankLoanScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [mode, setMode] = useState<"take" | "repay">("take");
@@ -31,17 +27,22 @@ export default function BankLoanScreen() {
 
   if (!slot) return null;
   const p = slot.player;
-  const step = RULES.bankLoan.step;
+  const takeStep = RULES.bankLoan.step;
+  const repayStep = RULES.bankLoan.repayStep;
   const ratePer = RULES.bankLoan.monthlyPaymentPer1000;
   const amountN = parseInt(amount, 10);
+  const activeStep = mode === "take" ? takeStep : repayStep;
   const valid =
-    Number.isFinite(amountN) && amountN > 0 && amountN % step === 0;
-  const blocks = valid ? amountN / step : 0;
-  const monthlyDelta = blocks * ratePer;
+    Number.isFinite(amountN) &&
+    amountN >= activeStep &&
+    amountN % activeStep === 0;
 
   const onSubmit = () => {
     if (!valid) {
-      Alert.alert("Ошибка", `Сумма должна быть кратна ${fmt(step)}.`);
+      Alert.alert(
+        t("common.error"),
+        t("bankLoan.errStep", { amount: fmt(activeStep) }),
+      );
       return;
     }
     if (mode === "take") {
@@ -49,15 +50,15 @@ export default function BankLoanScreen() {
     } else {
       if (amountN > p.bankLoanAmount) {
         Alert.alert(
-          "Ошибка",
-          `К погашению доступно ${fmt(p.bankLoanAmount)}.`,
+          t("common.error"),
+          t("bankLoan.errMaxRepay", { amount: fmt(p.bankLoanAmount) }),
         );
         return;
       }
       if (amountN > p.cash) {
         Alert.alert(
-          "Недостаточно средств",
-          `На сбережениях ${fmt(p.cash)}.`,
+          t("bankLoan.notEnough"),
+          t("bankLoan.notEnoughText", { amount: fmt(p.cash) }),
         );
         return;
       }
@@ -66,101 +67,124 @@ export default function BankLoanScreen() {
     router.back();
   };
 
+  const monthlyAfterRepay = ((p.bankLoanAmount - (valid ? amountN : 0)) / 1000) * ratePer;
+  const monthlyAfterTake = ((p.bankLoanAmount + (valid ? amountN : 0)) / 1000) * ratePer;
+  const monthlyNow = (p.bankLoanAmount / 1000) * ratePer;
+
   return (
-    <FormScroll>
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Текущее состояние</ThemedText>
-        <View style={styles.row}>
-          <ThemedText style={styles.muted}>Долг банку</ThemedText>
-          <ThemedText type="defaultSemiBold">
-            {fmt(p.bankLoanAmount)}
-          </ThemedText>
-        </View>
-        <View style={styles.row}>
-          <ThemedText style={styles.muted}>
-            Ежемесячный платёж по нему
-          </ThemedText>
-          <ThemedText type="defaultSemiBold">
-            {fmt((p.bankLoanAmount / step) * ratePer)}
-          </ThemedText>
-        </View>
-        <View style={styles.row}>
-          <ThemedText style={styles.muted}>Сбережения</ThemedText>
-          <ThemedText type="defaultSemiBold">{fmt(p.cash)}</ThemedText>
-        </View>
-      </ThemedView>
-
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Действие</ThemedText>
-        <View style={styles.tabs}>
-          <TouchableOpacity
-            style={[styles.tab, mode === "take" && styles.tabActive]}
-            onPress={() => setMode("take")}
-          >
-            <ThemedText type={mode === "take" ? "defaultSemiBold" : "default"}>
-              Взять
+    <>
+      <Stack.Screen options={{ title: t("actions.bankLoan") }} />
+      <FormScroll>
+        <ThemedView style={styles.card}>
+          <ThemedText type="subtitle">{t("bankLoan.currentState")}</ThemedText>
+          <View style={styles.row}>
+            <ThemedText style={styles.muted}>{t("bankLoan.debt")}</ThemedText>
+            <ThemedText type="defaultSemiBold">
+              {fmt(p.bankLoanAmount)}
             </ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, mode === "repay" && styles.tabActive]}
-            onPress={() => setMode("repay")}
-            disabled={p.bankLoanAmount === 0}
-          >
-            <ThemedText
-              type={mode === "repay" ? "defaultSemiBold" : "default"}
-              style={p.bankLoanAmount === 0 ? styles.muted : undefined}
-            >
-              Погасить
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-
-        <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
-          Сумма (кратно {fmt(step)})
-        </ThemedText>
-        <ThemedInput
-          keyboardType="number-pad"
-          placeholder={`Например, ${fmt(step * 5)}`}
-          value={amount}
-          onChangeText={setAmount}
-        />
-
-        {valid && (
-          <View style={{ gap: 4 }}>
-            <View style={styles.row}>
-              <ThemedText style={styles.muted}>
-                {mode === "take" ? "Платёж в месяц станет" : "Платёж снизится на"}
-              </ThemedText>
-              <ThemedText type="defaultSemiBold">
-                {mode === "take"
-                  ? fmt(((p.bankLoanAmount + amountN) / step) * ratePer)
-                  : "−" + fmt(monthlyDelta)}
-              </ThemedText>
-            </View>
-            <View style={styles.row}>
-              <ThemedText style={styles.muted}>Сбережения после</ThemedText>
-              <ThemedText
-                type="defaultSemiBold"
-                style={{
-                  color:
-                    mode === "repay" && p.cash - amountN < 0
-                      ? "#c62828"
-                      : undefined,
-                }}
-              >
-                {fmt(p.cash + (mode === "take" ? amountN : -amountN))}
-              </ThemedText>
-            </View>
           </View>
-        )}
-      </ThemedView>
+          <View style={styles.row}>
+            <ThemedText style={styles.muted}>
+              {t("bankLoan.monthlyPayment")}
+            </ThemedText>
+            <ThemedText type="defaultSemiBold">{fmt(monthlyNow)}</ThemedText>
+          </View>
+          <View style={styles.row}>
+            <ThemedText style={styles.muted}>
+              {t("actions.cashShort")}
+            </ThemedText>
+            <ThemedText type="defaultSemiBold">{fmt(p.cash)}</ThemedText>
+          </View>
+        </ThemedView>
 
-      <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
-        <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          {mode === "take" ? "Взять кредит" : "Погасить"}
-        </ThemedText>
-      </TouchableOpacity>
-    </FormScroll>
+        <ThemedView style={styles.card}>
+          <ThemedText type="subtitle">{t("bankLoan.action")}</ThemedText>
+          <View style={styles.tabs}>
+            <TouchableOpacity
+              style={[styles.tab, mode === "take" && styles.tabActive]}
+              onPress={() => {
+                setMode("take");
+                setAmount("");
+              }}
+            >
+              <ThemedText
+                type={mode === "take" ? "defaultSemiBold" : "default"}
+              >
+                {t("bankLoan.take")}
+              </ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, mode === "repay" && styles.tabActive]}
+              onPress={() => {
+                setMode("repay");
+                setAmount("");
+              }}
+              disabled={p.bankLoanAmount === 0}
+            >
+              <ThemedText
+                type={mode === "repay" ? "defaultSemiBold" : "default"}
+                style={p.bankLoanAmount === 0 ? styles.muted : undefined}
+              >
+                {t("bankLoan.repay")}
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+
+          <ThemedText type="defaultSemiBold" style={{ marginTop: 8 }}>
+            {mode === "take"
+              ? t("bankLoan.amountTake", { step: fmt(takeStep) })
+              : t("bankLoan.amountRepay", { step: fmt(repayStep) })}
+          </ThemedText>
+          <ThemedInput
+            keyboardType="number-pad"
+            placeholder={
+              mode === "take"
+                ? `${t("bankLoan.example")} ${fmt(takeStep * 5)}`
+                : `${t("bankLoan.example")} ${fmt(repayStep * 10)}`
+            }
+            value={amount}
+            onChangeText={setAmount}
+          />
+
+          {valid && (
+            <View style={{ gap: 4 }}>
+              <View style={styles.row}>
+                <ThemedText style={styles.muted}>
+                  {mode === "take"
+                    ? t("bankLoan.monthlyAfterTake")
+                    : t("bankLoan.monthlyAfterRepay")}
+                </ThemedText>
+                <ThemedText type="defaultSemiBold">
+                  {fmt(mode === "take" ? monthlyAfterTake : monthlyAfterRepay)}
+                </ThemedText>
+              </View>
+              <View style={styles.row}>
+                <ThemedText style={styles.muted}>
+                  {t("bankLoan.cashAfter")}
+                </ThemedText>
+                <ThemedText
+                  type="defaultSemiBold"
+                  style={{
+                    color:
+                      mode === "repay" && p.cash - amountN < 0
+                        ? "#c62828"
+                        : undefined,
+                  }}
+                >
+                  {fmt(p.cash + (mode === "take" ? amountN : -amountN))}
+                </ThemedText>
+              </View>
+            </View>
+          )}
+        </ThemedView>
+
+        <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
+          <ThemedText type="defaultSemiBold" style={styles.submitText}>
+            {mode === "take" ? t("bankLoan.btnTake") : t("bankLoan.btnRepay")}
+          </ThemedText>
+        </TouchableOpacity>
+      </FormScroll>
+    </>
   );
 }
 

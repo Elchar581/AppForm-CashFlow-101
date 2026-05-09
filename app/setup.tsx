@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
@@ -40,6 +40,7 @@ export default function SetupScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <Stack.Screen options={{ title: t("setup.title") }} />
       <ScrollView contentContainerStyle={styles.content}>
         <ThemedText type="defaultSemiBold">{t("setup.nameLabel")}</ThemedText>
         <TextInput

@@ -22,6 +22,8 @@ const MAPPING = {
   'plus.circle.fill': 'add-circle',
   'banknote': 'account-balance-wallet',
   'cart.fill': 'shopping-cart',
+  'chevron.left': 'chevron-left',
+  'line.3.horizontal': 'menu',
 } as IconMapping;
 
 /**

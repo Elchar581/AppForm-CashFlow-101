@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -13,12 +13,14 @@ import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { buyBusiness } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function BuyBusinessScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [name, setName] = useState("");
@@ -75,7 +77,9 @@ export default function BuyBusinessScreen() {
   };
 
   return (
-    <FormScroll>
+    <>
+      <Stack.Screen options={{ title: t("actions.buyBusiness") }} />
+      <FormScroll>
       <ThemedView style={styles.card}>
         <ThemedText type="defaultSemiBold">Название</ThemedText>
         <ThemedInput
@@ -139,10 +143,11 @@ export default function BuyBusinessScreen() {
 
       <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
         <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          Купить
+          {t("forms.btnBuy")}
         </ThemedText>
       </TouchableOpacity>
     </FormScroll>
+    </>
   );
 }
 

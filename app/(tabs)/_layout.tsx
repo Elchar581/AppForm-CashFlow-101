@@ -1,6 +1,6 @@
 import { Tabs, router } from "expo-router";
 import React from "react";
-import { TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { ThemedText } from "@/components/themed-text";
@@ -23,9 +23,18 @@ export default function TabLayout() {
         headerLeft: () => (
           <TouchableOpacity
             onPress={() => router.replace("/")}
-            style={{ paddingHorizontal: 16 }}
+            style={styles.menuBtn}
+            hitSlop={8}
           >
-            <ThemedText style={{ color: tint }}>{t("tabs.backToMenu")}</ThemedText>
+            <View style={styles.menuPill}>
+              <IconSymbol name="line.3.horizontal" size={18} color={tint} />
+              <ThemedText
+                type="defaultSemiBold"
+                style={[styles.menuText, { color: tint }]}
+              >
+                {t("tabs.backToMenu")}
+              </ThemedText>
+            </View>
           </TouchableOpacity>
         ),
       }}
@@ -60,3 +69,17 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  menuBtn: { paddingLeft: 12, paddingRight: 4 },
+  menuPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: "rgba(127,127,127,0.12)",
+  },
+  menuText: { fontSize: 14 },
+});

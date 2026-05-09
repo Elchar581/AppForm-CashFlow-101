@@ -117,8 +117,9 @@ export function takeBankLoan(p: PlayerState, amount: number): PlayerState {
 }
 
 export function repayBankLoan(p: PlayerState, amount: number): PlayerState {
-  const step = RULES.bankLoan.step;
-  if (amount <= 0 || amount % step !== 0) return p;
+  // Погашать можно частично — кратно repayStep ($10), минимум repayStep.
+  const repayStep = RULES.bankLoan.repayStep;
+  if (amount < repayStep || amount % repayStep !== 0) return p;
   if (amount > p.bankLoanAmount) return p;
   if (amount > p.cash) return p;
   return {

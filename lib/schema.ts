@@ -57,6 +57,7 @@ export const RulesSchema = z.object({
   maxProfileSlots: z.number().int().positive(),
   bankLoan: z.object({
     step: z.number().int().positive(),
+    repayStep: z.number().int().positive(),
     monthlyPaymentPer1000: z.number().nonnegative(),
   }),
   fastTrack: z.object({

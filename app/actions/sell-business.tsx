@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -13,12 +13,14 @@ import { ThemedInput } from "@/components/themed-input";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { sellBusiness } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function SellBusinessScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [assetId, setAssetId] = useState<string | null>(
@@ -53,7 +55,9 @@ export default function SellBusinessScreen() {
   };
 
   return (
-    <FormScroll>
+    <>
+      <Stack.Screen options={{ title: t("actions.sellBusiness") }} />
+      <FormScroll>
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Какой бизнес продать</ThemedText>
         {slot.player.businesses.map((b) => (
@@ -99,10 +103,11 @@ export default function SellBusinessScreen() {
 
       <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
         <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          Продать
+          {t("forms.btnSell")}
         </ThemedText>
       </TouchableOpacity>
     </FormScroll>
+    </>
   );
 }
 

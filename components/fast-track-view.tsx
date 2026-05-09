@@ -88,7 +88,9 @@ export function FastTrackView({ player }: { player: PlayerState }) {
         ) : (
           ft.holdings.map((h) => {
             const tpl = FAST_TRACK_BY_ID[h.businessId];
-            const name = tpl?.name ?? h.businessId;
+            const name = t(`fastTrackBusinesses.${h.businessId}`, {
+              defaultValue: tpl?.name ?? h.businessId,
+            });
             return (
               <Row
                 key={h.id}

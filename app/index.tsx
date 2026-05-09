@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -9,11 +9,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { LanguagePicker } from "@/components/language-picker";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { getProfession, monthlyCashflow } from "@/lib/calculations";
 import { RULES } from "@/lib/configs";
-import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from "@/lib/i18n";
+import { LOCALE_LABELS } from "@/lib/i18n";
 import { useLocaleStore, useT } from "@/store/locale";
 import { useProfileSlots, useProfilesActions } from "@/store/profiles";
 
@@ -34,7 +35,7 @@ export default function MenuScreen() {
   const slots = useProfileSlots();
   const { setActive, deleteProfile } = useProfilesActions();
   const currentLocale = useLocaleStore((s) => s.locale);
-  const setLocale = useLocaleStore((s) => s.setLocale);
+  const [langModalVisible, setLangModalVisible] = useState(false);
 
   const emptyCount = Math.max(0, RULES.maxProfileSlots - slots.length);
 
@@ -54,22 +55,15 @@ export default function MenuScreen() {
     ]);
   };
 
-  const onLanguagePress = () => {
-    Alert.alert(t("menu.language"), undefined, [
-      ...SUPPORTED_LOCALES.map((loc) => ({
-        text: `${LOCALE_LABELS[loc]}${loc === currentLocale ? "  ✓" : ""}`,
-        onPress: () => setLocale(loc as Locale),
-      })),
-      { text: t("common.cancel"), style: "cancel" as const },
-    ]);
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ThemedView style={styles.header}>
         <View style={styles.headerRow}>
           <ThemedText type="title">{t("app.name")}</ThemedText>
-          <TouchableOpacity style={styles.langBtn} onPress={onLanguagePress}>
+          <TouchableOpacity
+            style={styles.langBtn}
+            onPress={() => setLangModalVisible(true)}
+          >
             <ThemedText style={styles.langBtnText}>
               🌐 {LOCALE_LABELS[currentLocale]}
             </ThemedText>
@@ -102,7 +96,9 @@ export default function MenuScreen() {
                   {fmt(cf)} {t("menu.perMonth")}
                 </ThemedText>
                 <ThemedText style={styles.meta}>
-                  {slot.player.phase === "fastTrack" ? t("menu.onFastTrack") : ""}
+                  {slot.player.phase === "fastTrack"
+                    ? t("menu.onFastTrack")
+                    : ""}
                   {formatDate(slot.updatedAt)}
                 </ThemedText>
               </TouchableOpacity>
@@ -128,6 +124,11 @@ export default function MenuScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      <LanguagePicker
+        visible={langModalVisible}
+        onClose={() => setLangModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -142,9 +143,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   langBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: "rgba(127,127,127,0.4)",
   },

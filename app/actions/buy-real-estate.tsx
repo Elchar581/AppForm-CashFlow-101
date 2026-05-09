@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -14,12 +14,14 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { BIG_DEALS, SMALL_DEALS } from "@/lib/configs";
 import { buyRealEstate } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function BuyRealEstateScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer } = useProfilesActions();
   const [deck, setDeck] = useState<"small" | "big">("small");
@@ -81,7 +83,9 @@ export default function BuyRealEstateScreen() {
   };
 
   return (
-    <FormScroll>
+    <>
+      <Stack.Screen options={{ title: t("actions.buyRealEstate") }} />
+      <FormScroll>
       <ThemedView style={styles.card}>
         <ThemedText type="subtitle">Тип сделки</ThemedText>
         <View style={styles.tabs}>
@@ -116,22 +120,28 @@ export default function BuyRealEstateScreen() {
           Выберите шаблон или введите название вручную
         </ThemedText>
         <View style={styles.chips}>
-          {catalog.map((d) => (
-            <TouchableOpacity
-              key={d.id}
-              style={[
-                styles.chip,
-                templateId === d.id && styles.chipActive,
-              ]}
-              onPress={() => pickFromCatalog(d.id, d.name)}
-            >
-              <ThemedText
-                type={templateId === d.id ? "defaultSemiBold" : "default"}
+          {catalog.map((d) => {
+            const dealName = t(
+              `${deck === "small" ? "smallDeals" : "bigDeals"}.${d.id}`,
+              { defaultValue: d.name },
+            );
+            return (
+              <TouchableOpacity
+                key={d.id}
+                style={[
+                  styles.chip,
+                  templateId === d.id && styles.chipActive,
+                ]}
+                onPress={() => pickFromCatalog(d.id, dealName)}
               >
-                {d.name}
-              </ThemedText>
-            </TouchableOpacity>
-          ))}
+                <ThemedText
+                  type={templateId === d.id ? "defaultSemiBold" : "default"}
+                >
+                  {dealName}
+                </ThemedText>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ThemedView>
 
@@ -200,10 +210,11 @@ export default function BuyRealEstateScreen() {
 
       <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
         <ThemedText type="defaultSemiBold" style={styles.submitText}>
-          Купить
+          {t("forms.btnBuy")}
         </ThemedText>
       </TouchableOpacity>
     </FormScroll>
+    </>
   );
 }
 

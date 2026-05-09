@@ -3,6 +3,7 @@
   "maxProfileSlots": 4,
   "bankLoan": {
     "step": 1000,
+    "repayStep": 10,
     "monthlyPaymentPer1000": 100
   },
   "fastTrack": {
