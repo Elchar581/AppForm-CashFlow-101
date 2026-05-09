@@ -7,10 +7,12 @@ import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useT } from "@/store/locale";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme ?? "light"].tint;
+  const t = useT();
 
   return (
     <Tabs
@@ -23,7 +25,7 @@ export default function TabLayout() {
             onPress={() => router.replace("/")}
             style={{ paddingHorizontal: 16 }}
           >
-            <ThemedText style={{ color: tint }}>Меню</ThemedText>
+            <ThemedText style={{ color: tint }}>{t("tabs.backToMenu")}</ThemedText>
           </TouchableOpacity>
         ),
       }}
@@ -31,7 +33,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="statement"
         options={{
-          title: "Бланк",
+          title: t("tabs.statement"),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
           ),
@@ -40,7 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="balance"
         options={{
-          title: "Баланс",
+          title: t("tabs.balance"),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="list.bullet" color={color} />
           ),
@@ -49,7 +51,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="actions"
         options={{
-          title: "Действия",
+          title: t("tabs.actions"),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="plus.circle.fill" color={color} />
           ),

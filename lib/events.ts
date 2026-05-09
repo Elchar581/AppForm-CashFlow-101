@@ -330,6 +330,8 @@ export function buyFastTrackBusiness(
   const biz = FAST_TRACK_BY_ID[businessId];
   if (!biz) return p;
   if (biz.downPayment > p.cash) return p;
+  // Нельзя купить тот же бизнес повторно
+  if (p.fastTrack.holdings.some((h) => h.businessId === businessId)) return p;
 
   const isOneTime = biz.kind === "oneTime";
   const recurring = isOneTime ? 0 : biz.amount;

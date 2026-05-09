@@ -13,12 +13,14 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { PROFESSIONS } from "@/lib/configs";
+import { useT } from "@/store/locale";
 import { useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
   (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("ru-RU");
 
 export default function SetupScreen() {
+  const t = useT();
   const [name, setName] = useState("");
   const { createProfile, setActive } = useProfilesActions();
   const colorScheme = useColorScheme();
@@ -29,10 +31,7 @@ export default function SetupScreen() {
     const finalName = name.trim() || professionName;
     const slot = createProfile(finalName, professionId);
     if (!slot) {
-      Alert.alert(
-        "Слоты заняты",
-        "Удалите одну из существующих партий, чтобы создать новую.",
-      );
+      Alert.alert(t("setup.slotsFullTitle"), t("setup.slotsFullText"));
       return;
     }
     setActive(slot.id);
@@ -42,10 +41,10 @@ export default function SetupScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="defaultSemiBold">Имя игрока</ThemedText>
+        <ThemedText type="defaultSemiBold">{t("setup.nameLabel")}</ThemedText>
         <TextInput
           style={[styles.input, { color: inputColor }]}
-          placeholder="Например, Маша (по умолчанию — название профессии)"
+          placeholder={t("setup.namePlaceholder")}
           placeholderTextColor={placeholderColor}
           value={name}
           onChangeText={setName}
@@ -55,7 +54,7 @@ export default function SetupScreen() {
           type="defaultSemiBold"
           style={{ marginTop: 16, marginBottom: 4 }}
         >
-          Профессия
+          {t("setup.professionLabel")}
         </ThemedText>
 
         {PROFESSIONS.map((p) => {
@@ -69,19 +68,22 @@ export default function SetupScreen() {
             e.otherLoans +
             e.other;
           const startCashflow = p.income.salary - totalExp;
+          const profName = t(`professions.${p.id}`, { defaultValue: p.name });
           return (
             <TouchableOpacity
               key={p.id}
               style={styles.card}
-              onPress={() => onPick(p.id, p.name)}
+              onPress={() => onPick(p.id, profName)}
             >
-              <ThemedText type="defaultSemiBold">{p.name}</ThemedText>
+              <ThemedText type="defaultSemiBold">{profName}</ThemedText>
               <ThemedView style={styles.row}>
-                <ThemedText style={styles.muted}>Зарплата</ThemedText>
+                <ThemedText style={styles.muted}>{t("setup.salary")}</ThemedText>
                 <ThemedText>{fmt(p.income.salary)}</ThemedText>
               </ThemedView>
               <ThemedView style={styles.row}>
-                <ThemedText style={styles.muted}>Стартовый поток</ThemedText>
+                <ThemedText style={styles.muted}>
+                  {t("setup.startCashflow")}
+                </ThemedText>
                 <ThemedText
                   style={{ color: startCashflow >= 0 ? "#2e7d32" : "#c62828" }}
                 >
@@ -90,7 +92,7 @@ export default function SetupScreen() {
                 </ThemedText>
               </ThemedView>
               <ThemedView style={styles.row}>
-                <ThemedText style={styles.muted}>Сбережения</ThemedText>
+                <ThemedText style={styles.muted}>{t("setup.savings")}</ThemedText>
                 <ThemedText>{fmt(p.assets.savings)}</ThemedText>
               </ThemedView>
             </TouchableOpacity>

@@ -4,59 +4,61 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useT } from "@/store/locale";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const t = useT();
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="setup" options={{ title: "Новая партия" }} />
+        <Stack.Screen name="setup" options={{ title: t("setup.title") }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="actions/buy-stock"
-          options={{ title: "Купить акции" }}
+          options={{ title: t("actions.buyStock") }}
         />
         <Stack.Screen
           name="actions/sell-stock"
-          options={{ title: "Продать акции" }}
+          options={{ title: t("actions.sellStock") }}
         />
         <Stack.Screen
           name="actions/buy-real-estate"
-          options={{ title: "Купить недвижимость" }}
+          options={{ title: t("actions.buyRealEstate") }}
         />
         <Stack.Screen
           name="actions/sell-real-estate"
-          options={{ title: "Продать недвижимость" }}
+          options={{ title: t("actions.sellRealEstate") }}
         />
         <Stack.Screen
           name="actions/buy-business"
-          options={{ title: "Купить бизнес" }}
+          options={{ title: t("actions.buyBusiness") }}
         />
         <Stack.Screen
           name="actions/sell-business"
-          options={{ title: "Продать бизнес" }}
+          options={{ title: t("actions.sellBusiness") }}
         />
         <Stack.Screen
           name="actions/bank-loan"
-          options={{ title: "Кредит банка" }}
+          options={{ title: t("actions.bankLoan") }}
         />
         <Stack.Screen
           name="actions/doodad"
-          options={{ title: "Мелкая трата (Doodad)" }}
+          options={{ title: t("actions.doodad") }}
         />
         <Stack.Screen
           name="actions/fast-track-buy"
-          options={{ title: "Купить бизнес · Большой круг" }}
+          options={{ title: t("actions.ftBuyBtn") }}
         />
         <Stack.Screen
           name="actions/pay-off-liabilities"
-          options={{ title: "Закрытие пассивов" }}
+          options={{ title: t("actions.payOffLiab") }}
         />
         <Stack.Screen
           name="rat-race-snapshot"
-          options={{ title: "Бланк крысиных гонок" }}
+          options={{ title: t("phase.snapshot") }}
         />
       </Stack>
       <StatusBar style="auto" />

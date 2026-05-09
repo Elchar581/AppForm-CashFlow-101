@@ -1,5 +1,6 @@
 [
   { "id": "house-3-2",          "name": "3/2 дом" },
+  { "id": "apt-2-1",            "name": "2/1 квартира" },
   { "id": "loan-sister-in-law", "name": "Одолжить денег своячечнице" },
   { "id": "rare-gold-coin",     "name": "Редкая золотая монета" },
   { "id": "friend-needs-money", "name": "Другу нужны деньги" },

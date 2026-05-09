@@ -20,6 +20,7 @@ import {
 } from "@/lib/calculations";
 import { RULES } from "@/lib/configs";
 import { addChild, exitRatRace, payday } from "@/lib/events";
+import { useT } from "@/store/locale";
 import { useActiveProfile, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -62,6 +63,7 @@ function ActionRow({
 const Divider = () => <View style={styles.divider} />;
 
 export default function ActionsScreen() {
+  const t = useT();
   const slot = useActiveProfile();
   const { updatePlayer, resetPlayer } = useProfilesActions();
 
@@ -89,13 +91,16 @@ export default function ActionsScreen() {
 
   const onAddChild = () => {
     if (p.childrenCount >= RULES.maxChildren) {
-      Alert.alert("Максимум детей", `Лимит по правилам — ${RULES.maxChildren}.`);
+      Alert.alert(
+        t("actions.childMaxTitle"),
+        t("actions.childMaxText", { max: RULES.maxChildren }),
+      );
       return;
     }
-    Alert.alert("Ребёнок", "Добавить ребёнка к семье?", [
-      { text: "Отмена", style: "cancel" },
+    Alert.alert(t("actions.childAddTitle"), t("actions.childAddText"), [
+      { text: t("common.cancel"), style: "cancel" },
       {
-        text: "Добавить",
+        text: t("actions.childAddBtn"),
         onPress: () => updatePlayer(slot.id, (s) => addChild(s)),
       },
     ]);
@@ -106,12 +111,17 @@ export default function ActionsScreen() {
     const initial =
       Math.round(passive / 1000) * 1000 * RULES.fastTrack.passiveIncomeMultiplier;
     Alert.alert(
-      "Выход из крысиных гонок",
-      `Поздравляем! Пассивный доход ${fmt(passive)} превысил расходы.\n\nНа Большом круге начальный пассивный доход = ${fmt(initial)} (округление до ${fmt(1000)} × ${RULES.fastTrack.passiveIncomeMultiplier}).\n\nПерейти?`,
+      t("actions.exitConfirmTitle"),
+      t("actions.exitConfirmText", {
+        passive: fmt(passive),
+        initial: fmt(initial),
+        step: fmt(1000),
+        mult: RULES.fastTrack.passiveIncomeMultiplier,
+      }),
       [
-        { text: "Отмена", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Перейти",
+          text: t("actions.exitConfirmBtn"),
           onPress: () => updatePlayer(slot.id, (s) => exitRatRace(s)),
         },
       ],
@@ -119,30 +129,28 @@ export default function ActionsScreen() {
   };
 
   const onReset = () => {
-    Alert.alert(
-      "Начать заново?",
-      "Партия сбросится в начальное состояние профессии. Имя сохранится.",
-      [
-        { text: "Отмена", style: "cancel" },
-        {
-          text: "Сбросить",
-          style: "destructive",
-          onPress: () => resetPlayer(slot.id),
-        },
-      ],
-    );
+    Alert.alert(t("actions.resetTitle"), t("actions.resetText"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("actions.resetBtn"),
+        style: "destructive",
+        onPress: () => resetPlayer(slot.id),
+      },
+    ]);
   };
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <ThemedView style={styles.summary}>
         <View style={styles.summaryRow}>
-          <ThemedText style={styles.summaryLabel}>Сбережения</ThemedText>
+          <ThemedText style={styles.summaryLabel}>
+            {t("actions.cashShort")}
+          </ThemedText>
           <ThemedText type="defaultSemiBold">{fmt(p.cash)}</ThemedText>
         </View>
         <View style={styles.summaryRow}>
           <ThemedText style={styles.summaryLabel}>
-            {isFT ? "Поток на ВТ" : "Денежный поток"}
+            {isFT ? t("actions.flowFTShort") : t("actions.flowShort")}
           </ThemedText>
           <ThemedText
             type="defaultSemiBold"
@@ -153,22 +161,24 @@ export default function ActionsScreen() {
           </ThemedText>
         </View>
         <View style={styles.summaryRow}>
-          <ThemedText style={styles.summaryLabel}>Фаза</ThemedText>
+          <ThemedText style={styles.summaryLabel}>
+            {t("actions.phase")}
+          </ThemedText>
           <ThemedText type="defaultSemiBold">
-            {isFT ? "Большой круг" : "Крысиные гонки"}
+            {isFT ? t("phase.fastTrack") : t("phase.ratRace")}
           </ThemedText>
         </View>
       </ThemedView>
 
       {canExit && (
         <ThemedView style={[styles.card, styles.exitCard]}>
-          <ThemedText type="subtitle">🎉 Выход доступен!</ThemedText>
+          <ThemedText type="subtitle">{t("actions.exitTitle")}</ThemedText>
           <ThemedText style={styles.muted}>
-            Пассивный доход покрывает все расходы — можно выйти из крысиных гонок.
+            {t("actions.exitHelper")}
           </ThemedText>
           <TouchableOpacity style={styles.exitBtn} onPress={onExit}>
             <ThemedText type="defaultSemiBold" style={styles.submitText}>
-              Выйти из крысиных гонок
+              {t("actions.exitBtn")}
             </ThemedText>
           </TouchableOpacity>
         </ThemedView>
@@ -176,35 +186,40 @@ export default function ActionsScreen() {
 
       {won && (
         <ThemedView style={[styles.card, styles.winCard]}>
-          <ThemedText type="subtitle">🏆 Вы выиграли!</ThemedText>
+          <ThemedText type="subtitle">{t("actions.winTitle")}</ThemedText>
           <ThemedText style={styles.muted}>
-            Прибавка к потоку ≥ {fmt(RULES.fastTrack.winCashflowDelta)}
-            {p.fastTrack?.dreamBought ? " · мечта куплена" : ""}.
+            {t("actions.winText", {
+              amount: fmt(RULES.fastTrack.winCashflowDelta),
+              dream: p.fastTrack?.dreamBought ? t("actions.winDream") : "",
+            })}
           </ThemedText>
         </ThemedView>
       )}
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">День получки</ThemedText>
+        <ThemedText type="subtitle">{t("actions.payday")}</ThemedText>
         <ActionRow
-          title="Получить денежный поток"
-          subtitle={`+${fmt(cf)} в сбережения`}
+          title={t("actions.paydayBtn")}
+          subtitle={t("actions.paydaySub", { amount: fmt(cf) })}
           onPress={onPayday}
         />
       </ThemedView>
 
       {isFT && (
         <ThemedView style={styles.card}>
-          <ThemedText type="subtitle">Большой круг</ThemedText>
+          <ThemedText type="subtitle">{t("actions.bigCircle")}</ThemedText>
           <ActionRow
-            title="Купить бизнес ВТ"
-            subtitle={`Куплено: ${p.fastTrack?.holdings.length ?? 0} · Прибавка к потоку: ${fmt(p.fastTrack?.cashflowDeltaSinceStart ?? 0)}`}
+            title={t("actions.ftBuyBtn")}
+            subtitle={t("actions.ftBuySub", {
+              count: p.fastTrack?.holdings.length ?? 0,
+              delta: fmt(p.fastTrack?.cashflowDeltaSinceStart ?? 0),
+            })}
             onPress={() => router.push("/actions/fast-track-buy")}
           />
           <Divider />
           <ActionRow
-            title="📋 Бланк крысиных гонок"
-            subtitle="Снимок предыдущего этапа: доходы, расходы, пассивы"
+            title={t("actions.snapshotBtn")}
+            subtitle={t("actions.snapshotSub")}
             onPress={() => router.push("/rat-race-snapshot")}
           />
         </ThemedView>
@@ -213,52 +228,52 @@ export default function ActionsScreen() {
       {!isFT && (
         <>
           <ThemedView style={styles.card}>
-            <ThemedText type="subtitle">Сделки</ThemedText>
+            <ThemedText type="subtitle">{t("actions.deals")}</ThemedText>
             <ActionRow
-              title="Купить акции"
-              subtitle="Из каталога: MYT4U, OK4U, ON2U, GRO4US, CD, 2BIG"
+              title={t("actions.buyStock")}
+              subtitle={t("actions.buyStockSub")}
               onPress={() => router.push("/actions/buy-stock")}
             />
             <Divider />
             <ActionRow
-              title="Продать акции"
+              title={t("actions.sellStock")}
               subtitle={
                 p.stocks.length === 0
-                  ? "Нет позиций"
-                  : `${p.stocks.length} позиций`
+                  ? t("actions.sellStockNo")
+                  : t("actions.sellStockSub", { count: p.stocks.length })
               }
               onPress={() => router.push("/actions/sell-stock")}
               disabled={p.stocks.length === 0}
             />
             <Divider />
             <ActionRow
-              title="Купить недвижимость"
-              subtitle="Малая или крупная сделка"
+              title={t("actions.buyRealEstate")}
+              subtitle={t("actions.buyRealEstateSub")}
               onPress={() => router.push("/actions/buy-real-estate")}
             />
             <Divider />
             <ActionRow
-              title="Продать недвижимость"
+              title={t("actions.sellRealEstate")}
               subtitle={
                 p.realEstate.length === 0
-                  ? "Нет объектов"
-                  : `${p.realEstate.length} объектов`
+                  ? t("actions.sellRealEstateNo")
+                  : t("actions.sellRealEstateSub", { count: p.realEstate.length })
               }
               onPress={() => router.push("/actions/sell-real-estate")}
               disabled={p.realEstate.length === 0}
             />
             <Divider />
             <ActionRow
-              title="Купить бизнес"
+              title={t("actions.buyBusiness")}
               onPress={() => router.push("/actions/buy-business")}
             />
             <Divider />
             <ActionRow
-              title="Продать бизнес"
+              title={t("actions.sellBusiness")}
               subtitle={
                 p.businesses.length === 0
-                  ? "Нет бизнесов"
-                  : `${p.businesses.length} бизнесов`
+                  ? t("actions.sellBusinessNo")
+                  : t("actions.sellBusinessSub", { count: p.businesses.length })
               }
               onPress={() => router.push("/actions/sell-business")}
               disabled={p.businesses.length === 0}
@@ -266,10 +281,13 @@ export default function ActionsScreen() {
           </ThemedView>
 
           <ThemedView style={styles.card}>
-            <ThemedText type="subtitle">Семья</ThemedText>
+            <ThemedText type="subtitle">{t("actions.family")}</ThemedText>
             <ActionRow
-              title="Добавить ребёнка"
-              subtitle={`Сейчас детей: ${p.childrenCount} / ${RULES.maxChildren}`}
+              title={t("actions.addChild")}
+              subtitle={t("actions.addChildSub", {
+                count: p.childrenCount,
+                max: RULES.maxChildren,
+              })}
               onPress={onAddChild}
               disabled={p.childrenCount >= RULES.maxChildren}
             />
@@ -278,39 +296,43 @@ export default function ActionsScreen() {
       )}
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Финансы</ThemedText>
+        <ThemedText type="subtitle">{t("actions.finance")}</ThemedText>
         {!isFT && (
           <>
             <ActionRow
-              title="Кредит банка"
+              title={t("actions.bankLoan")}
               subtitle={
                 p.bankLoanAmount > 0
-                  ? `Текущий долг: ${fmt(p.bankLoanAmount)}`
-                  : `Кратно ${fmt(RULES.bankLoan.step)}`
+                  ? t("actions.bankLoanSubDebt", {
+                      amount: fmt(p.bankLoanAmount),
+                    })
+                  : t("actions.bankLoanSubMul", {
+                      amount: fmt(RULES.bankLoan.step),
+                    })
               }
               onPress={() => router.push("/actions/bank-loan")}
             />
             <Divider />
             <ActionRow
-              title="Закрытие пассивов"
-              subtitle="Полностью погасить ипотеку / кредиты профессии"
+              title={t("actions.payOffLiab")}
+              subtitle={t("actions.payOffLiabSub")}
               onPress={() => router.push("/actions/pay-off-liabilities")}
             />
             <Divider />
           </>
         )}
         <ActionRow
-          title="Мелкая трата (Doodad)"
-          subtitle="Списать из сбережений по карточке"
+          title={t("actions.doodad")}
+          subtitle={t("actions.doodadSub")}
           onPress={() => router.push("/actions/doodad")}
         />
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Партия</ThemedText>
+        <ThemedText type="subtitle">{t("actions.party")}</ThemedText>
         <ActionRow
-          title="Начать заново"
-          subtitle="Сбросить состояние, сохранить имя и профессию"
+          title={t("actions.reset")}
+          subtitle={t("actions.resetSub")}
           destructive
           onPress={onReset}
         />

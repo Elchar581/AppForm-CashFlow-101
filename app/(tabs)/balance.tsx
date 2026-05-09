@@ -6,6 +6,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { effectiveLiability, getProfession } from "@/lib/calculations";
 import { FAST_TRACK_BY_ID, STOCK_BY_ID } from "@/lib/configs";
+import { useT } from "@/store/locale";
 import { useActiveProfile } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -23,14 +24,14 @@ function Row({
   muted?: boolean;
 }) {
   const display = typeof value === "number" ? fmt(value) : value;
-  const t = bold ? "defaultSemiBold" : "default";
+  const ttype = bold ? "defaultSemiBold" : "default";
   const s = muted ? styles.muted : undefined;
   return (
     <View style={styles.row}>
-      <ThemedText type={t} style={s}>
+      <ThemedText type={ttype} style={s}>
         {label}
       </ThemedText>
-      <ThemedText type={t} style={s}>
+      <ThemedText type={ttype} style={s}>
         {display}
       </ThemedText>
     </View>
@@ -38,6 +39,7 @@ function Row({
 }
 
 export default function BalanceScreen() {
+  const t = useT();
   const slot = useActiveProfile();
 
   useEffect(() => {
@@ -47,15 +49,14 @@ export default function BalanceScreen() {
   if (!slot) return null;
   const p = slot.player;
   const prof = getProfession(p.professionId);
+  const profName = t(`professions.${prof.id}`, { defaultValue: prof.name });
 
   const realEstateTotalCost = p.realEstate.reduce((s, r) => s + r.price, 0);
-  const realEstateTotalDP = p.realEstate.reduce((s, r) => s + r.downPayment, 0);
   const realEstateMortgageSum = p.realEstate.reduce(
     (s, r) => s + r.mortgage,
     0,
   );
   const businessTotalCost = p.businesses.reduce((s, b) => s + b.price, 0);
-  const businessTotalDP = p.businesses.reduce((s, b) => s + b.downPayment, 0);
   const businessLiabSum = p.businesses.reduce((s, b) => s + b.liability, 0);
   const stocksValueAtCost = p.stocks.reduce(
     (s, st) => s + st.shares * st.buyPrice,
@@ -84,12 +85,12 @@ export default function BalanceScreen() {
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <ThemedView style={styles.headline}>
-        <ThemedText type="title">Балансовый отчёт</ThemedText>
+        <ThemedText type="title">{t("balance.title")}</ThemedText>
         <ThemedText style={styles.muted}>
-          {p.playerName} · {prof.name}
+          {p.playerName} · {profName}
         </ThemedText>
         <View style={styles.netWorth}>
-          <ThemedText style={styles.muted}>Чистый капитал</ThemedText>
+          <ThemedText style={styles.muted}>{t("balance.netWorth")}</ThemedText>
           <ThemedText
             type="title"
             style={{ color: netWorth >= 0 ? "#2e7d32" : "#c62828" }}
@@ -100,13 +101,13 @@ export default function BalanceScreen() {
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Активы</ThemedText>
-        <Row label="Сбережения" value={p.cash} />
+        <ThemedText type="subtitle">{t("balance.assets")}</ThemedText>
+        <Row label={t("balance.savings")} value={p.cash} />
 
         {p.stocks.length > 0 && (
           <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>
-              Акции / Депозиты
+              {t("balance.stocks")}
             </ThemedText>
             {p.stocks.map((s) => {
               const tpl = STOCK_BY_ID[s.templateId];
@@ -114,7 +115,11 @@ export default function BalanceScreen() {
               return (
                 <Row
                   key={s.id}
-                  label={`${ticker} · ${s.shares} шт. @ ${fmt(s.buyPrice)}`}
+                  label={t("balance.sharesAt", {
+                    ticker,
+                    shares: s.shares,
+                    price: fmt(s.buyPrice),
+                  })}
                   value={s.shares * s.buyPrice}
                 />
               );
@@ -124,11 +129,16 @@ export default function BalanceScreen() {
 
         {p.realEstate.length > 0 && (
           <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>Недвижимость</ThemedText>
+            <ThemedText style={styles.sectionTitle}>
+              {t("balance.realEstate")}
+            </ThemedText>
             {p.realEstate.map((r) => (
               <Row
                 key={r.id}
-                label={`${r.name} · взнос ${fmt(r.downPayment)}`}
+                label={t("balance.propertyDownPayment", {
+                  name: r.name,
+                  amount: fmt(r.downPayment),
+                })}
                 value={r.price}
               />
             ))}
@@ -137,11 +147,16 @@ export default function BalanceScreen() {
 
         {p.businesses.length > 0 && (
           <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>Бизнес</ThemedText>
+            <ThemedText style={styles.sectionTitle}>
+              {t("balance.business")}
+            </ThemedText>
             {p.businesses.map((b) => (
               <Row
                 key={b.id}
-                label={`${b.name} · взнос ${fmt(b.downPayment)}`}
+                label={t("balance.propertyDownPayment", {
+                  name: b.name,
+                  amount: fmt(b.downPayment),
+                })}
                 value={b.price}
               />
             ))}
@@ -151,7 +166,7 @@ export default function BalanceScreen() {
         {p.fastTrack && p.fastTrack.holdings.length > 0 && (
           <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>
-              Бизнесы Большого круга
+              {t("balance.ftBusinesses")}
             </ThemedText>
             {p.fastTrack.holdings.map((h) => {
               const tpl = FAST_TRACK_BY_ID[h.businessId];
@@ -159,7 +174,13 @@ export default function BalanceScreen() {
               return (
                 <Row
                   key={h.id}
-                  label={`${name} · ${h.monthlyCashflow > 0 ? `+${fmt(h.monthlyCashflow)}/мес` : "разово"}`}
+                  label={`${name} · ${
+                    h.monthlyCashflow > 0
+                      ? t("statement.perMonthPlus", {
+                          amount: fmt(h.monthlyCashflow),
+                        })
+                      : t("statement.oneTimePayout")
+                  }`}
                   value={tpl?.downPayment ?? 0}
                 />
               );
@@ -168,35 +189,44 @@ export default function BalanceScreen() {
         )}
 
         <View style={styles.divider} />
-        <Row label="Итого активов (по цене)" value={totalAssetsCost} bold />
+        <Row label={t("balance.totalAssets")} value={totalAssetsCost} bold />
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Пассивы</ThemedText>
-        {liabMortgage > 0 && <Row label="Ипотека" value={liabMortgage} />}
+        <ThemedText type="subtitle">{t("balance.liabilities")}</ThemedText>
+        {liabMortgage > 0 && (
+          <Row label={t("statement.liabMortgage")} value={liabMortgage} />
+        )}
         {liabSchoolLoan > 0 && (
-          <Row label="Кредит на образование" value={liabSchoolLoan} />
+          <Row label={t("statement.liabSchoolLoan")} value={liabSchoolLoan} />
         )}
         {liabCarLoan > 0 && (
-          <Row label="Кредит на автомобиль" value={liabCarLoan} />
+          <Row label={t("statement.liabCarLoan")} value={liabCarLoan} />
         )}
         {liabCreditCards > 0 && (
-          <Row label="Долг по кредитной карточке" value={liabCreditCards} />
+          <Row label={t("statement.liabCreditCards")} value={liabCreditCards} />
         )}
         {liabOtherLoans > 0 && (
-          <Row label="Мелкие кредиты" value={liabOtherLoans} />
+          <Row label={t("statement.liabOtherLoans")} value={liabOtherLoans} />
         )}
         {realEstateMortgageSum > 0 && (
-          <Row label="Ипотека недвижимости" value={realEstateMortgageSum} />
+          <Row
+            label={t("balance.liabRealEstateMortgage")}
+            value={realEstateMortgageSum}
+          />
         )}
         {businessLiabSum > 0 && (
-          <Row label="Пассивы бизнеса" value={businessLiabSum} />
+          <Row label={t("balance.liabBusiness")} value={businessLiabSum} />
         )}
         {p.bankLoanAmount > 0 && (
-          <Row label="Кредит банка" value={p.bankLoanAmount} />
+          <Row label={t("balance.liabBank")} value={p.bankLoanAmount} />
         )}
         <View style={styles.divider} />
-        <Row label="Итого пассивов" value={totalLiabilities} bold />
+        <Row
+          label={t("balance.totalLiabilities")}
+          value={totalLiabilities}
+          bold
+        />
       </ThemedView>
     </ScrollView>
   );

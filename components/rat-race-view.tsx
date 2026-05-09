@@ -1,5 +1,6 @@
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -12,6 +13,7 @@ import {
   stocksDividends,
   summarizePlayer,
 } from "@/lib/calculations";
+import { useT } from "@/store/locale";
 import type { PlayerState, ProfessionLiabilityKey } from "@/lib/types";
 
 const fmt = (n: number) =>
@@ -31,17 +33,21 @@ function Row({
   strikethrough?: boolean;
 }) {
   const display = typeof value === "number" ? fmt(value) : value;
-  const t = bold ? "defaultSemiBold" : "default";
+  const ttype = bold ? "defaultSemiBold" : "default";
   const styleLine = [
     muted ? styles.muted : undefined,
     strikethrough ? styles.struck : undefined,
   ];
   return (
     <View style={styles.row}>
-      <ThemedText type={t} style={[...styleLine, { flex: 1 }]} numberOfLines={2}>
+      <ThemedText
+        type={ttype}
+        style={[...styleLine, { flex: 1 }]}
+        numberOfLines={2}
+      >
         {label}
       </ThemedText>
-      <ThemedText type={t} style={styleLine}>
+      <ThemedText type={ttype} style={styleLine}>
         {display}
       </ThemedText>
     </View>
@@ -55,11 +61,17 @@ export function RatRaceView({
   player: PlayerState;
   snapshot?: boolean;
 }) {
+  const t = useT();
+  const insets = useSafeAreaInsets();
+  const bottomPad = snapshot ? insets.bottom + 24 : 16;
   const s = summarizePlayer(player);
   const e = s.profession.expenses;
   const dividends = stocksDividends(player);
   const reCf = realEstateCashflow(player);
   const bizCf = businessCashflow(player);
+  const profName = t(`professions.${s.profession.id}`, {
+    defaultValue: s.profession.name,
+  });
 
   const expenseRow = (
     label: string,
@@ -71,7 +83,7 @@ export function RatRaceView({
     return (
       <Row
         key={label}
-        label={closed ? `${label} · погашен` : label}
+        label={closed ? `${label} · ${t("statement.paid")}` : label}
         value={effectiveExpense(player, s.profession, key)}
         muted={closed}
         strikethrough={closed}
@@ -80,14 +92,18 @@ export function RatRaceView({
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <ScrollView
+      contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
+    >
       <ThemedView style={styles.headline}>
         <ThemedText type="title">{player.playerName}</ThemedText>
         <ThemedText style={styles.muted}>
-          {s.profession.name} · {snapshot ? "Снимок крысиных гонок" : "Крысиные гонки"}
+          {profName} · {snapshot ? t("phase.snapshot") : t("phase.ratRace")}
         </ThemedText>
         <View style={styles.cashflowBig}>
-          <ThemedText style={styles.muted}>Месячный денежный поток</ThemedText>
+          <ThemedText style={styles.muted}>
+            {t("statement.monthlyCashflow")}
+          </ThemedText>
           <ThemedText
             type="title"
             style={{ color: s.monthlyCashflow >= 0 ? "#2e7d32" : "#c62828" }}
@@ -99,58 +115,62 @@ export function RatRaceView({
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Доходы</ThemedText>
-        <Row label="Зарплата" value={s.salary} />
-        <Row label="Проценты / дивиденды" value={dividends} />
-        <Row label="Аренда недвижимости" value={reCf} />
-        <Row label="Бизнес и предприятия" value={bizCf} />
+        <ThemedText type="subtitle">{t("statement.income")}</ThemedText>
+        <Row label={t("statement.salary")} value={s.salary} />
+        <Row label={t("statement.interestDividends")} value={dividends} />
+        <Row label={t("statement.rentRealEstate")} value={reCf} />
+        <Row label={t("statement.businesses")} value={bizCf} />
         <View style={styles.divider} />
-        <Row label="Общий доход" value={s.totalIncome} bold />
-        <Row label="в т.ч. пассивный" value={s.passiveIncome} muted />
+        <Row label={t("statement.totalIncome")} value={s.totalIncome} bold />
+        <Row
+          label={t("statement.passiveIncluded")}
+          value={s.passiveIncome}
+          muted
+        />
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Расходы</ThemedText>
-        <Row label="Налоги" value={e.taxes} />
-        {expenseRow("Ипотека / аренда", "mortgage", e.mortgage)}
-        {expenseRow("Кредит на образование", "schoolLoan", e.schoolLoan)}
-        {expenseRow("Кредит на машину", "carLoan", e.carLoan)}
-        {expenseRow("Кредитные карточки", "creditCards", e.creditCards)}
-        {expenseRow("Мелкие кредиты", "otherLoans", e.otherLoans)}
-        <Row label="Прочие расходы" value={e.other} />
+        <ThemedText type="subtitle">{t("statement.expenses")}</ThemedText>
+        <Row label={t("statement.taxes")} value={e.taxes} />
+        {expenseRow(t("statement.mortgage"), "mortgage", e.mortgage)}
+        {expenseRow(t("statement.schoolLoan"), "schoolLoan", e.schoolLoan)}
+        {expenseRow(t("statement.carLoan"), "carLoan", e.carLoan)}
+        {expenseRow(t("statement.creditCards"), "creditCards", e.creditCards)}
+        {expenseRow(t("statement.otherLoans"), "otherLoans", e.otherLoans)}
+        <Row label={t("statement.other")} value={e.other} />
         <Row
-          label={`Расходы на детей (${player.childrenCount})`}
+          label={t("statement.children", { count: player.childrenCount })}
           value={s.childrenExpense}
         />
-        <Row label="Оплата кредита банка" value={s.bankLoanPayment} />
+        <Row label={t("statement.bankLoan")} value={s.bankLoanPayment} />
         <View style={styles.divider} />
-        <Row label="Общий расход" value={s.totalExpenses} bold />
+        <Row label={t("statement.totalExpenses")} value={s.totalExpenses} bold />
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Пассивы стартовой профессии</ThemedText>
+        <ThemedText type="subtitle">{t("statement.profLiabilities")}</ThemedText>
         <Row
-          label="Ипотека"
+          label={t("statement.liabMortgage")}
           value={effectiveLiability(player, s.profession, "mortgage")}
           strikethrough={isLiabilityPaidOff(player, "mortgage")}
         />
         <Row
-          label="Кредит на образование"
+          label={t("statement.liabSchoolLoan")}
           value={effectiveLiability(player, s.profession, "schoolLoan")}
           strikethrough={isLiabilityPaidOff(player, "schoolLoan")}
         />
         <Row
-          label="Кредит на машину"
+          label={t("statement.liabCarLoan")}
           value={effectiveLiability(player, s.profession, "carLoan")}
           strikethrough={isLiabilityPaidOff(player, "carLoan")}
         />
         <Row
-          label="Долг по кредитной карточке"
+          label={t("statement.liabCreditCards")}
           value={effectiveLiability(player, s.profession, "creditCards")}
           strikethrough={isLiabilityPaidOff(player, "creditCards")}
         />
         <Row
-          label="Мелкие кредиты"
+          label={t("statement.liabOtherLoans")}
           value={effectiveLiability(player, s.profession, "otherLoans")}
           strikethrough={isLiabilityPaidOff(player, "otherLoans")}
         />
@@ -158,15 +178,19 @@ export function RatRaceView({
 
       <ThemedView style={[styles.card, s.canExitRatRace && styles.cardWin]}>
         <ThemedText type="subtitle">
-          {s.canExitRatRace ? "Выход доступен!" : "Условие выхода"}
+          {s.canExitRatRace
+            ? t("statement.exitAvailable")
+            : t("statement.exitCondition")}
         </ThemedText>
-        <Row label="Пассивный доход" value={s.passiveIncome} />
-        <Row label="Общий расход" value={s.totalExpenses} />
+        <Row label={t("statement.passiveIncome")} value={s.passiveIncome} />
+        <Row label={t("statement.totalExpenses")} value={s.totalExpenses} />
         <View style={styles.divider} />
         <ThemedText style={styles.muted}>
           {s.canExitRatRace
-            ? "Пассивный доход покрывает все расходы — кнопка «Выйти из крысиных гонок» доступна на вкладке Действия."
-            : `До выхода не хватает $${(s.totalExpenses - s.passiveIncome).toLocaleString("ru-RU")} пассивного дохода в месяц.`}
+            ? t("statement.exitHelper")
+            : t("statement.exitNeed", {
+                amount: fmt(s.totalExpenses - s.passiveIncome),
+              })}
         </ThemedText>
       </ThemedView>
     </ScrollView>

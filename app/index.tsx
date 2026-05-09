@@ -13,6 +13,8 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { getProfession, monthlyCashflow } from "@/lib/calculations";
 import { RULES } from "@/lib/configs";
+import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from "@/lib/i18n";
+import { useLocaleStore, useT } from "@/store/locale";
 import { useProfileSlots, useProfilesActions } from "@/store/profiles";
 
 const fmt = (n: number) =>
@@ -28,8 +30,11 @@ const formatDate = (ts: number) => {
 };
 
 export default function MenuScreen() {
+  const t = useT();
   const slots = useProfileSlots();
   const { setActive, deleteProfile } = useProfilesActions();
+  const currentLocale = useLocaleStore((s) => s.locale);
+  const setLocale = useLocaleStore((s) => s.setLocale);
 
   const emptyCount = Math.max(0, RULES.maxProfileSlots - slots.length);
 
@@ -39,32 +44,48 @@ export default function MenuScreen() {
   };
 
   const confirmDelete = (id: string, name: string) => {
-    Alert.alert(
-      "Удалить партию?",
-      `Партия "${name}" будет удалена безвозвратно.`,
-      [
-        { text: "Отмена", style: "cancel" },
-        {
-          text: "Удалить",
-          style: "destructive",
-          onPress: () => deleteProfile(id),
-        },
-      ],
-    );
+    Alert.alert(t("menu.deleteTitle"), t("menu.deleteText", { name }), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: () => deleteProfile(id),
+      },
+    ]);
+  };
+
+  const onLanguagePress = () => {
+    Alert.alert(t("menu.language"), undefined, [
+      ...SUPPORTED_LOCALES.map((loc) => ({
+        text: `${LOCALE_LABELS[loc]}${loc === currentLocale ? "  ✓" : ""}`,
+        onPress: () => setLocale(loc as Locale),
+      })),
+      { text: t("common.cancel"), style: "cancel" as const },
+    ]);
   };
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ThemedView style={styles.header}>
-        <ThemedText type="title">CashFlow 101</ThemedText>
-        <ThemedText style={styles.muted}>Выберите партию</ThemedText>
+        <View style={styles.headerRow}>
+          <ThemedText type="title">{t("app.name")}</ThemedText>
+          <TouchableOpacity style={styles.langBtn} onPress={onLanguagePress}>
+            <ThemedText style={styles.langBtnText}>
+              🌐 {LOCALE_LABELS[currentLocale]}
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
+        <ThemedText style={styles.muted}>{t("menu.subtitle")}</ThemedText>
       </ThemedView>
 
       <ScrollView contentContainerStyle={styles.list}>
         {slots.map((slot) => {
           const prof = getProfession(slot.player.professionId);
           const cf = monthlyCashflow(slot.player, prof);
-          const name = slot.player.playerName || prof.name;
+          const profName = t(`professions.${prof.id}`, {
+            defaultValue: prof.name,
+          });
+          const name = slot.player.playerName || profName;
           return (
             <View key={slot.id} style={styles.slot}>
               <TouchableOpacity
@@ -72,18 +93,16 @@ export default function MenuScreen() {
                 onPress={() => openProfile(slot.id)}
               >
                 <ThemedText type="defaultSemiBold">
-                  {name} · {prof.name}
+                  {name} · {profName}
                 </ThemedText>
                 <ThemedText
                   style={{ color: cf >= 0 ? "#2e7d32" : "#c62828" }}
                 >
                   {cf >= 0 ? "+" : ""}
-                  {fmt(cf)} / мес
+                  {fmt(cf)} {t("menu.perMonth")}
                 </ThemedText>
                 <ThemedText style={styles.meta}>
-                  {slot.player.phase === "fastTrack"
-                    ? "На большом круге · "
-                    : ""}
+                  {slot.player.phase === "fastTrack" ? t("menu.onFastTrack") : ""}
                   {formatDate(slot.updatedAt)}
                 </ThemedText>
               </TouchableOpacity>
@@ -91,7 +110,9 @@ export default function MenuScreen() {
                 style={styles.deleteBtn}
                 onPress={() => confirmDelete(slot.id, name)}
               >
-                <ThemedText style={styles.deleteText}>Удалить</ThemedText>
+                <ThemedText style={styles.deleteText}>
+                  {t("common.delete")}
+                </ThemedText>
               </TouchableOpacity>
             </View>
           );
@@ -103,7 +124,7 @@ export default function MenuScreen() {
             style={[styles.slot, styles.empty]}
             onPress={() => router.push("/setup")}
           >
-            <ThemedText style={styles.muted}>+ Создать партию</ThemedText>
+            <ThemedText style={styles.muted}>{t("menu.create")}</ThemedText>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -114,6 +135,20 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { padding: 24, gap: 4 },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+  },
+  langBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(127,127,127,0.4)",
+  },
+  langBtnText: { fontSize: 13 },
   list: { padding: 16, gap: 12 },
   slot: {
     borderRadius: 12,

@@ -59,6 +59,9 @@ export default function FastTrackBuyScreen() {
         <ThemedText type="subtitle">Выберите бизнес</ThemedText>
         {FAST_TRACK.map((b) => {
           const affordable = b.downPayment <= p.cash;
+          const alreadyBought =
+            p.fastTrack?.holdings.some((h) => h.businessId === b.id) ?? false;
+          const enabled = affordable && !alreadyBought;
           const isSelected = businessId === b.id;
           return (
             <TouchableOpacity
@@ -66,10 +69,10 @@ export default function FastTrackBuyScreen() {
               style={[
                 styles.option,
                 isSelected && styles.optionActive,
-                !affordable && styles.optionDisabled,
+                !enabled && styles.optionDisabled,
               ]}
               onPress={() => setBusinessId(b.id)}
-              disabled={!affordable}
+              disabled={!enabled}
             >
               <View style={styles.optionHeader}>
                 <ThemedText
@@ -79,9 +82,14 @@ export default function FastTrackBuyScreen() {
                 >
                   {b.name}
                 </ThemedText>
-                {b.diceRequired ? (
+                {alreadyBought ? (
+                  <ThemedText style={styles.boughtBadge}>✓ куплен</ThemedText>
+                ) : b.diceRequired ? (
                   <ThemedText style={styles.dice}>
-                    🎲 {b.diceRequired}
+                    🎲{" "}
+                    {b.diceRequired === 6
+                      ? "нужно 6"
+                      : `нужно ${b.diceRequired}+`}
                   </ThemedText>
                 ) : null}
               </View>
@@ -138,8 +146,10 @@ export default function FastTrackBuyScreen() {
           </View>
           {selected.diceRequired ? (
             <ThemedText style={styles.muted}>
-              Условие на кубике: {selected.diceRequired}. Бросаете
-              физический кубик сами — приложение этого не проверяет.
+              {selected.diceRequired === 6
+                ? "Условие: выбросьте 6 очков на кубике."
+                : `Условие: выбросьте ${selected.diceRequired} или более очков на кубике.`}
+              {" "}Бросаете физический кубик сами — приложение этого не проверяет.
             </ThemedText>
           ) : null}
         </ThemedView>
@@ -192,7 +202,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 8,
   },
-  dice: { fontSize: 14, opacity: 0.8 },
+  dice: { fontSize: 13, opacity: 0.8 },
+  boughtBadge: { color: "#2e7d32", fontWeight: "600", fontSize: 13 },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",

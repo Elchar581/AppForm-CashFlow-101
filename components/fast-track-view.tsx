@@ -10,6 +10,7 @@ import {
   fastTrackMonthlyCashflow,
 } from "@/lib/calculations";
 import { FAST_TRACK_BY_ID, RULES } from "@/lib/configs";
+import { useT } from "@/store/locale";
 import type { PlayerState } from "@/lib/types";
 
 const fmt = (n: number) =>
@@ -27,14 +28,14 @@ function Row({
   muted?: boolean;
 }) {
   const display = typeof value === "number" ? fmt(value) : value;
-  const t = bold ? "defaultSemiBold" : "default";
+  const ttype = bold ? "defaultSemiBold" : "default";
   const s = muted ? styles.muted : undefined;
   return (
     <View style={styles.row}>
-      <ThemedText type={t} style={[s, { flex: 1 }]} numberOfLines={2}>
+      <ThemedText type={ttype} style={[s, { flex: 1 }]} numberOfLines={2}>
         {label}
       </ThemedText>
-      <ThemedText type={t} style={s}>
+      <ThemedText type={ttype} style={s}>
         {display}
       </ThemedText>
     </View>
@@ -42,6 +43,7 @@ function Row({
 }
 
 export function FastTrackView({ player }: { player: PlayerState }) {
+  const t = useT();
   const ft = player.fastTrack;
   if (!ft) return null;
 
@@ -57,9 +59,11 @@ export function FastTrackView({ player }: { player: PlayerState }) {
     <ScrollView contentContainerStyle={styles.content}>
       <ThemedView style={styles.headline}>
         <ThemedText type="title">{player.playerName}</ThemedText>
-        <ThemedText style={styles.muted}>Большой круг</ThemedText>
+        <ThemedText style={styles.muted}>{t("phase.fastTrack")}</ThemedText>
         <View style={styles.cashflowBig}>
-          <ThemedText style={styles.muted}>Месячный поток</ThemedText>
+          <ThemedText style={styles.muted}>
+            {t("statement.monthlyFlowFT")}
+          </ThemedText>
           <ThemedText type="title" style={{ color: "#2e7d32" }}>
             +{fmt(total)}
           </ThemedText>
@@ -67,22 +71,20 @@ export function FastTrackView({ player }: { player: PlayerState }) {
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Доходы Большого круга</ThemedText>
+        <ThemedText type="subtitle">{t("statement.ftIncome")}</ThemedText>
         <Row
-          label="Начальный пассивный доход (×100)"
+          label={t("statement.ftInitialPassive")}
           value={ft.initialPassiveIncome}
         />
-        <Row label="Прибыль ВТ-бизнесов" value={recurring} />
+        <Row label={t("statement.ftBusinessRevenue")} value={recurring} />
         <View style={styles.divider} />
-        <Row label="Итого" value={total} bold />
+        <Row label={t("statement.ftTotal")} value={total} bold />
       </ThemedView>
 
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Купленные ВТ-бизнесы</ThemedText>
+        <ThemedText type="subtitle">{t("statement.ftPurchased")}</ThemedText>
         {ft.holdings.length === 0 ? (
-          <ThemedText style={styles.muted}>
-            Пока не куплено. Покупайте на вкладке Действия.
-          </ThemedText>
+          <ThemedText style={styles.muted}>{t("statement.ftEmpty")}</ThemedText>
         ) : (
           ft.holdings.map((h) => {
             const tpl = FAST_TRACK_BY_ID[h.businessId];
@@ -93,8 +95,10 @@ export function FastTrackView({ player }: { player: PlayerState }) {
                 label={name}
                 value={
                   h.monthlyCashflow > 0
-                    ? `+${fmt(h.monthlyCashflow)}/мес`
-                    : "разово"
+                    ? t("statement.perMonthPlus", {
+                        amount: fmt(h.monthlyCashflow),
+                      })
+                    : t("statement.oneTimePayout")
                 }
               />
             );
@@ -104,18 +108,15 @@ export function FastTrackView({ player }: { player: PlayerState }) {
 
       <ThemedView style={[styles.card, won && styles.cardWin]}>
         <ThemedText type="subtitle">
-          {won ? "🏆 Победа!" : "Условие победы"}
+          {won ? t("statement.ftWonTitle") : t("statement.ftWinCondition")}
         </ThemedText>
-        <Row
-          label="Прибавка к потоку с момента выхода"
-          value={ft.cashflowDeltaSinceStart}
-        />
-        <Row label="Цель" value={RULES.fastTrack.winCashflowDelta} />
+        <Row label={t("statement.ftDelta")} value={ft.cashflowDeltaSinceStart} />
+        <Row label={t("statement.ftGoal")} value={RULES.fastTrack.winCashflowDelta} />
         <View style={styles.divider} />
         <ThemedText style={styles.muted}>
           {won
-            ? "Поток вырос на нужную величину. Можно либо праздновать, либо продолжать наращивать."
-            : `Осталось +${fmt(remaining)}/мес — покупайте ВТ-бизнесы. Альтернативно — купить «мечту».`}
+            ? t("statement.ftWonText")
+            : t("statement.ftRemaining", { amount: fmt(remaining) })}
         </ThemedText>
       </ThemedView>
 
@@ -124,7 +125,7 @@ export function FastTrackView({ player }: { player: PlayerState }) {
         onPress={() => router.push("/rat-race-snapshot")}
       >
         <ThemedText type="defaultSemiBold" style={styles.snapshotText}>
-          📋 Посмотреть бланк крысиных гонок
+          {t("statement.ftSnapshotBtn")}
         </ThemedText>
       </TouchableOpacity>
     </ScrollView>
