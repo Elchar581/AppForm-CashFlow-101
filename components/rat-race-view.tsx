@@ -96,9 +96,15 @@ export function RatRaceView({
       contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
     >
       <ThemedView style={styles.headline}>
-        <ThemedText type="title">{player.playerName}</ThemedText>
+        <ThemedText type="title">
+          {player.playerName || profName}
+        </ThemedText>
         <ThemedText style={styles.muted}>
-          {profName} · {snapshot ? t("phase.snapshot") : t("phase.ratRace")}
+          {player.playerName
+            ? `${profName} · ${snapshot ? t("phase.snapshot") : t("phase.ratRace")}`
+            : snapshot
+              ? t("phase.snapshot")
+              : t("phase.ratRace")}
         </ThemedText>
         <View style={styles.cashflowBig}>
           <ThemedText style={styles.muted}>

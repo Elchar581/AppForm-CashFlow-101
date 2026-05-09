@@ -27,7 +27,7 @@ export default {
   setup: {
     title: "Nueva partida",
     nameLabel: "Nombre del jugador",
-    namePlaceholder: "p. ej. María (por defecto: nombre de la profesión)",
+    namePlaceholder: "p. ej. María",
     professionLabel: "Profesión",
     salary: "Salario",
     startCashflow: "Flujo inicial",

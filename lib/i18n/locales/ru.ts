@@ -27,7 +27,7 @@ export default {
   setup: {
     title: "Новая партия",
     nameLabel: "Имя игрока",
-    namePlaceholder: "Например, Маша (по умолчанию — название профессии)",
+    namePlaceholder: "Например, Маша",
     professionLabel: "Профессия",
     salary: "Зарплата",
     startCashflow: "Стартовый поток",

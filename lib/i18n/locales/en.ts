@@ -27,7 +27,7 @@ export default {
   setup: {
     title: "New game",
     nameLabel: "Player name",
-    namePlaceholder: "e.g. Mary (defaults to profession name)",
+    namePlaceholder: "e.g. Mary",
     professionLabel: "Profession",
     salary: "Salary",
     startCashflow: "Starting cashflow",

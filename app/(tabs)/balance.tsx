@@ -87,7 +87,7 @@ export default function BalanceScreen() {
       <ThemedView style={styles.headline}>
         <ThemedText type="title">{t("balance.title")}</ThemedText>
         <ThemedText style={styles.muted}>
-          {p.playerName} · {profName}
+          {p.playerName ? `${p.playerName} · ${profName}` : profName}
         </ThemedText>
         <View style={styles.netWorth}>
           <ThemedText style={styles.muted}>{t("balance.netWorth")}</ThemedText>

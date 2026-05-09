@@ -27,7 +27,7 @@ export default {
   setup: {
     title: "新对局",
     nameLabel: "玩家姓名",
-    namePlaceholder: "如:小明(默认使用职业名称)",
+    namePlaceholder: "如:小明",
     professionLabel: "职业",
     salary: "工资",
     startCashflow: "起始现金流",

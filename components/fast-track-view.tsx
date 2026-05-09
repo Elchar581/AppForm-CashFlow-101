@@ -45,6 +45,9 @@ function Row({
 export function FastTrackView({ player }: { player: PlayerState }) {
   const t = useT();
   const ft = player.fastTrack;
+  const profName = t(`professions.${player.professionId}`, {
+    defaultValue: player.professionId,
+  });
   if (!ft) return null;
 
   const recurring = fastTrackBusinessCashflow(player);
@@ -58,7 +61,9 @@ export function FastTrackView({ player }: { player: PlayerState }) {
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <ThemedView style={styles.headline}>
-        <ThemedText type="title">{player.playerName}</ThemedText>
+        <ThemedText type="title">
+          {player.playerName || profName}
+        </ThemedText>
         <ThemedText style={styles.muted}>{t("phase.fastTrack")}</ThemedText>
         <View style={styles.cashflowBig}>
           <ThemedText style={styles.muted}>
