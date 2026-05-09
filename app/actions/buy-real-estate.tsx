@@ -109,7 +109,7 @@ export default function BuyRealEstateScreen() {
             }}
           >
             <ThemedText type={deck === "big" ? "defaultSemiBold" : "default"}>
-              Крупная
+              {t("buyRE.big")}
             </ThemedText>
           </TouchableOpacity>
         </View>
