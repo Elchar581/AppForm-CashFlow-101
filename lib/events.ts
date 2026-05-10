@@ -66,6 +66,23 @@ export function doodad(
   };
 }
 
+/**
+ * Получить финансовую помощь от другого игрока (благотворительность).
+ * Просто прибавляет сумму к сбережениям.
+ */
+export function receiveAid(p: PlayerState, amount: number): PlayerState {
+  if (amount <= 0) return p;
+  return {
+    ...p,
+    cash: p.cash + amount,
+    history: withEvent(p, {
+      kind: "receiveAid",
+      ts: Date.now(),
+      amount,
+    }),
+  };
+}
+
 // ───────── закрытие пассивов профессии ─────────
 
 /**

@@ -65,6 +65,7 @@ export type GameEvent =
   | { kind: "repayBankLoan";   ts: number; amount: number }
   | { kind: "payOffLiability"; ts: number; key: ProfessionLiabilityKey; amount: number }
   | { kind: "doodad";          ts: number; description: string; amount: number }
+  | { kind: "receiveAid";      ts: number; amount: number }
   | { kind: "payday";          ts: number; cashflow: number }
   | { kind: "downsize";        ts: number }
   | { kind: "exitRatRace";     ts: number; passiveIncome: number }

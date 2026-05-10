@@ -168,6 +168,8 @@ export default {
     payOffLiabSub: "Fully pay off mortgage / profession loans",
     doodad: "Doodad expense",
     doodadSub: "Deduct from savings per card",
+    aid: "Financial aid",
+    aidSub: "Receive money from another player (charity)",
     party: "Game",
     reset: "Restart",
     resetSub: "Reset state, keep name and profession",
@@ -345,6 +347,15 @@ export default {
     "ipo-biotech": "Biotech company IPO",
     "dry-cleaner": "Dry cleaner",
     "kitchen-ad-agency": "Kitchenware ad agency",
+  },
+  aid: {
+    title: "Financial aid",
+    helper:
+      "Another player has given you money as charity. Enter the amount to credit it to your savings.",
+    amountLabel: "Amount",
+    amountPlaceholder: "e.g. 500",
+    cashAfter: "Savings after",
+    btnReceive: "Receive",
   },
   professions: {
     teacher: "Teacher",

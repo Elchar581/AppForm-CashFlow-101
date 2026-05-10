@@ -326,6 +326,12 @@ export default function ActionsScreen() {
           subtitle={t("actions.doodadSub")}
           onPress={() => router.push("/actions/doodad")}
         />
+        <Divider />
+        <ActionRow
+          title={t("actions.aid")}
+          subtitle={t("actions.aidSub")}
+          onPress={() => router.push("/actions/financial-aid")}
+        />
       </ThemedView>
 
       <ThemedView style={styles.card}>

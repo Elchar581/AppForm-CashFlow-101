@@ -168,6 +168,8 @@ export default {
     payOffLiabSub: "Pagar totalmente hipoteca / préstamos de la profesión",
     doodad: "Gasto inesperado (Doodad)",
     doodadSub: "Restar de ahorros según tarjeta",
+    aid: "Ayuda financiera",
+    aidSub: "Recibe dinero de otro jugador (caridad)",
     party: "Partida",
     reset: "Reiniciar",
     resetSub: "Restablecer estado, mantener nombre y profesión",
@@ -346,6 +348,15 @@ export default {
     "ipo-biotech": "OPI de empresa biotecnológica",
     "dry-cleaner": "Tintorería",
     "kitchen-ad-agency": "Agencia publicitaria de cocina",
+  },
+  aid: {
+    title: "Ayuda financiera",
+    helper:
+      "Otro jugador te ha dado dinero como caridad. Introduce la cantidad para sumarla a tus ahorros.",
+    amountLabel: "Cantidad",
+    amountPlaceholder: "p. ej. 500",
+    cashAfter: "Ahorros después",
+    btnReceive: "Recibir",
   },
   professions: {
     teacher: "Maestro",

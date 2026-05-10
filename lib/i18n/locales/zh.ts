@@ -163,6 +163,8 @@ export default {
     payOffLiabSub: "全额偿清房贷/职业贷款",
     doodad: "意外开支 (Doodad)",
     doodadSub: "按卡片从存款扣除",
+    aid: "财务援助",
+    aidSub: "接收其他玩家的捐赠",
     party: "对局",
     reset: "重新开始",
     resetSub: "重置状态,保留姓名和职业",
@@ -338,6 +340,14 @@ export default {
     "ipo-biotech": "生物科技公司 IPO",
     "dry-cleaner": "干洗店",
     "kitchen-ad-agency": "厨具广告公司",
+  },
+  aid: {
+    title: "财务援助",
+    helper: "其他玩家以慈善方式赠予您一笔款项。输入金额即可添加到存款。",
+    amountLabel: "金额",
+    amountPlaceholder: "如:500",
+    cashAfter: "存款余额",
+    btnReceive: "收到",
   },
   professions: {
     teacher: "教师",

@@ -26,6 +26,7 @@ export default function RootLayout() {
         <Stack.Screen name="actions/sell-business" options={{ title: t("actions.sellBusiness") }} />
         <Stack.Screen name="actions/bank-loan" options={{ title: t("actions.bankLoan") }} />
         <Stack.Screen name="actions/doodad" options={{ title: t("actions.doodad") }} />
+        <Stack.Screen name="actions/financial-aid" options={{ title: t("aid.title") }} />
         <Stack.Screen name="actions/fast-track-buy" options={{ title: t("actions.ftBuyBtn") }} />
         <Stack.Screen name="actions/pay-off-liabilities" options={{ title: t("actions.payOffLiab") }} />
         <Stack.Screen name="rat-race-snapshot" options={{ title: t("phase.snapshot") }} />
